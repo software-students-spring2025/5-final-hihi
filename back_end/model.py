@@ -26,7 +26,7 @@ class MealType(Document):
 
 # recipe table
 class Recipe(Document):
-    meta = {'collection': 'recipes'}  # collection name in MongoDB
+    meta = {'collection': 'recipes'}
 
     total_time = IntField(required=True, min_value=0)  # in minutes
     ingredients = MapField(field=StringField())        # key-value ingredient names
