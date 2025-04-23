@@ -35,7 +35,6 @@ class AllergyPreferences(Document):
     # Preference
     vegetarian = BooleanField(default=False)
     vegan = BooleanField(default=False)
-    dietary = BooleanField(default=False)
     gluten_free = BooleanField(default=False)
     kosher = BooleanField(default=False)
     lactose = BooleanField(default=False)
