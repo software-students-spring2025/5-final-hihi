@@ -109,6 +109,19 @@ class Recipe(Document):
     
     # Metadata
     user = ReferenceField(UserInformation, required=True)
+    timestamp = DateField(default=datetime.now)
+
+
+class RecipeHistory(Document):
+    meta = {'collection': 'recipe_history'}
+
+    user = ReferenceField(UserInformation, required=True)
+
+    recipe = ReferenceField(Recipe, required=True)
     
+    '''
+    # Requirements used to generate this recipe (if applicable)
+    requirements = ReferenceField(Requirements)
+    '''
     
     timestamp = DateField(default=datetime.now)
