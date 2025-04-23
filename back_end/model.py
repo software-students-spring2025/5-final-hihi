@@ -119,6 +119,8 @@ class Requirements(Document):
 class Recipe(Document):
     meta = {'collection': 'recipes'}
     
+    type = StringField(required=True) # 'breakfast'; 'brunch'; 'lunch'; 'dinner'
+    
     name = StringField(required=True)
     time = IntField(min_value=0)  # in minutes
     description = StringField()
