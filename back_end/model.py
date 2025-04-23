@@ -19,13 +19,12 @@ class CookMode(Document):
 # Meal type table
 class MealType(Document):
     meta = {'collection': 'meal_type'}
+    
     main_dish = BooleanField(default=False)
     desserts = BooleanField(default=False)
     side_dishes = BooleanField(default=False)
-    lunch = BooleanField(default=False)
     appetizers = BooleanField(default=False)
-    soups_stews = BooleanField(default=False)
-    breakfast = BooleanField(default=False)
+    soups = BooleanField(default=False)
     beverage = BooleanField(default=False)
 
 # Allergy and preferences table
@@ -47,6 +46,7 @@ class AllergyPreferences(Document):
 # Cuisine table
 class Cuisine(Document):
     meta = {'collection': 'cuisine'}
+    
     north_american = BooleanField(default=False)
     european = BooleanField(default=False)
     asian = BooleanField(default=False)
@@ -61,13 +61,45 @@ class Cuisine(Document):
     french = BooleanField(default=False)
     middle_eastern = BooleanField(default=False)
     chinese = BooleanField(default=False)
+    
+# Daily Plan table
+class DailyPlan(Document):
+    meta = {'collection': 'daily_plan'}
+    
+    breakfast = BooleanField(default=False)
+    brunch = BooleanField(default=False)
+    lunch = BooleanField(default=False)
+    dinner = BooleanField(default=False)
+    
 
 # Requirements table
 class Requirements(Document):
     meta = {'collection': 'requirements'}
     
-    max_time = IntField(min_value=0)  # in minutes
-    max_calories = IntField(min_value=0)
+    time_interval = IntField(default=0)
+    '''
+    1: Less than 30 minutes; 
+    2: 30 minutes to 1 hour; 
+    3: 1 hour to 1.5 hours; 
+    4: 1.5 hours to 2 hours; 
+    5: More than 2 hours; 
+    
+    0: No specific requirement
+    '''
+    
+    
+    calory_interval = IntField(default=0) 
+    '''
+    1: 1,200–1,400 kcal – Very low;
+    2: 1,400–1,600 kcal – Low;
+    3: 1,600–1,800 kcal – Moderate;
+    4: 1,800–2,200 kcal – Balanced;
+    5: 2,200–2,500 kcal – High;
+    6: 2,500–3,000 kcal – Very high;
+    
+    0: No specific requirement
+    '''
+
     
     '''min_protein = IntField(min_value=0)
     max_carbs = IntField(min_value=0)
@@ -75,6 +107,7 @@ class Requirements(Document):
     
     # References to filtering categories
     cook_mode = ReferenceField(CookMode)
+    daily_plan = ReferenceField(DailyPlan)
     meal_type = ReferenceField(MealType)
     allergy_preferences = ReferenceField(AllergyPreferences)
     cuisine = ReferenceField(Cuisine)
