@@ -14,8 +14,7 @@ class UserInformation(Document):
 # Cook mode table
 class CookMode(Document):
     meta = {'collection': 'cook_mode'}
-    easy = BooleanField(default=False)
-    beginner_cook = BooleanField(default=False)
+    easy = BooleanField(default=False) # tags: easy + beginner cook
 
 # Meal type table
 class MealType(Document):
