@@ -46,6 +46,7 @@ def page3():
 
 @app.route('/results')
 def results():
-    # to do: process data
-    return render_template('results.html')
+    recipes = db.collection.find({"cuisine": session.get('selected_cuisine', 'asian')}).limit(10)
+    recipes_list = list(recipes)
 
+    return render_template('results.html', recipes=recipes_list)

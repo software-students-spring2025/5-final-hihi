@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4">Question 3: What type of dishes do you prefer?</h3>
+
+<form method="POST">
+    <select class="form-select" name="response3" required>
+        <option value="">Choose dish type...</option>
+        <option value="main_dish" {% if response3 == 'main_dish' %}selected{% endif %}>Main Dish</option>
+        <option value="desserts" {% if response3 == 'desserts' %}selected{% endif %}>Desserts</option>
+        <option value="soups_stews" {% if response3 == 'soups_stews' %}selected{% endif %}>Soups & Stews</option>
+        <option value="beverage" {% if response3 == 'beverage' %}selected{% endif %}>Beverage</option>
+        <option value="breakfast" {% if response3 == 'breakfast' %}selected{% endif %}>Breakfast</option>
+    </select>
+
+    <button type="submit" name="previous" class="btn btn-secondary mt-3">Previous</button>
+    <button type="submit" class="btn btn-success mt-3">Submit</button>
+</form>
+{% endblock %}

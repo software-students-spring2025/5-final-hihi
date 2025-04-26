@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-4">🎉 Your Recommended Recipes 🎉</h3>
+
+<div class="row">
+    {% for recipe in recipes %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/cuisines/' + recipe.cuisine + '.jpg') }}" 
+                 class="card-img-top" 
+                 alt="{{ recipe.cuisine }} Cuisine">
+            <div class="card-body">
+                <h5 class="card-title">{{ recipe.name }}</h5>
+                <p class="card-text">{{ recipe.description[:100] }}...</p>
+                <a href="#" class="btn btn-primary">View Recipe</a>
+                <button class="btn btn-outline-success">Save Recipe</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
