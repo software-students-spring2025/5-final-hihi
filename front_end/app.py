@@ -36,6 +36,17 @@ def login():
             flash("Invalid username or password", "danger")
     return render_template('login.html')
 
+# -------- SIGNUP ROUTE --------
+@app.route('/signup', methods=['GET','POST'])
+def sign_up():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password']
+        user = {"username": username, "password": password}
+        user = db.client['recipe_database']['user_information'].insert_one(user)
+        session['username'] = username
+        return redirect(url_for('page1'))
+    return render_template('signup.html')
 
 # -------- LOGOUT ROUTE --------
 @app.route('/logout')
