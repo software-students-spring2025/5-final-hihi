@@ -3,7 +3,7 @@ import pymongo
 from dataset import recipes_list
 
 # Replace with your actual MongoDB Atlas URI
-MONGO_URI = "mongodb+srv://yz9016:ev1zDHCYJ6Q9twFG@cluster0.cogqyqp.mongodb.net/"
+MONGO_URI = "mongodb+srv://test_user:IQ2he1ZHq3mkLJNX@cluster0.cogqyqp.mongodb.net/"
 
 # Connect to MongoDB Atlas
 # client = MongoClient(MONGO_URI)
