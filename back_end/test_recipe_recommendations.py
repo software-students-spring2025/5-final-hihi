@@ -17,7 +17,7 @@ def test_recipe_recommendations():
                 "name": "Vegetarian Italian",
                 "preferences": {
                     'question1': [1],  # Vegetarian
-                    'question2': 4,    # Balanced calories
+                    'question2': 7,    # No calorie preference
                     'question3': 2,    # 30-60 minutes
                     'question4': [4],  # Italian cuisine
                     'question5': 2,    # Not beginner
@@ -38,15 +38,27 @@ def test_recipe_recommendations():
                 }
             },
             {
-                "name": "Gluten-Free Asian Dinner",
+                "name": "Gluten-Free Asian",
                 "preferences": {
-                    'question1': [4],   # Gluten-free
-                    'question2': 3,     # Moderate calories
-                    'question3': 3,     # 1-1.5 hours
-                    'question4': [3, 14],  # Asian, Chinese
+                    'question1': [3],   # Gluten-free
+                    'question2': 4,     # Moderate-high calories (1800-2200)
+                    'question3': 3,     # 60-90 minutes
+                    'question4': [3],   # Asian cuisine
                     'question5': 2,     # Not beginner
-                    'question6': [4],   # Dinner
-                    'question7': [1, 2, 5]  # Main dish, side dish, soup
+                    'question6': [3, 4],  # Lunch and dinner
+                    'question7': [1, 3]   # Main dish and dessert
+                }
+            },
+            {
+                "name": "Low Calorie Soup & Side",
+                "preferences": {
+                    'question1': [10],  # No dietary restrictions
+                    'question2': 1,     # Low calories (1200-1400)
+                    'question3': 2,     # 30-60 minutes
+                    'question4': [15],  # No cuisine preference
+                    'question5': 1,     # Beginner
+                    'question6': [3],   # Lunch
+                    'question7': [2, 5]  # Side dish and soup
                 }
             }
         ]
