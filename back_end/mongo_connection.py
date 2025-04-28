@@ -12,7 +12,7 @@ class JSONEncoder(json.JSONEncoder):
 class RecipeDatabase:
     def __init__(self, uri=None):
         # Use the provided URI or default to the one in your example
-        self.uri = uri if uri else "mongodb+srv://test_user:IQ2he1ZHq3mkLJNX@cluster0.cogqyqp.mongodb.net/"
+        self.uri = uri if uri else "mongodb+srv://user_name:<password_to_be_replaced>@cluster0.cogqyqp.mongodb.net/"
         self.client = None
         self.db = None
         self.collection = None
