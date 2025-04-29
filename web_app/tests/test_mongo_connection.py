@@ -21,152 +21,190 @@ SAMPLE_RECIPE = {
     }
 }
 
-# Create a simple class to patch methods
-class MockDB:
-    def connect(self):
-        return True
+# Patch the MongoClient at the module level to avoid actual MongoDB connections
+@pytest.fixture(autouse=True)
+def mock_mongo_client():
+    with patch('back_end.mongo_connection.MongoClient') as mock_client:
+        # Setup mock collection
+        mock_collection = MagicMock()
+        mock_collection.count_documents.return_value = 5
+        mock_collection.find_one.return_value = SAMPLE_RECIPE
         
-    def find_recipes(self, query={}, limit=10):
-        return [SAMPLE_RECIPE]
+        # Configure find to return our sample recipe
+        mock_cursor = MagicMock()
+        mock_cursor.limit.return_value = [SAMPLE_RECIPE]
+        mock_collection.find.return_value = mock_cursor
         
-    def find_recipe_by_id(self, recipe_id):
-        return SAMPLE_RECIPE
+        # Configure aggregate to return our sample recipe
+        mock_collection.aggregate.return_value = [SAMPLE_RECIPE]
         
-    def search_recipes_by_name(self, name_query, limit=10):
-        return [SAMPLE_RECIPE]
+        # Setup mock database
+        mock_db = MagicMock()
+        mock_db.__getitem__.return_value = mock_collection
+        mock_db.name = 'recipe_database'
         
-    def find_recipes_by_tags(self, tags, limit=10):
-        return [SAMPLE_RECIPE]
+        # Setup mock client
+        mock_client_instance = MagicMock()
+        mock_client_instance.__getitem__.return_value = mock_db
+        mock_client.return_value = mock_client_instance
         
-    def find_recipes_by_ingredients(self, ingredients, limit=10):
-        return [SAMPLE_RECIPE]
-        
-    def get_sample_recipes(self, count=5):
-        return [SAMPLE_RECIPE]
-        
-    def to_json(self, data):
-        return json.dumps({"_id": str(SAMPLE_RECIPE["_id"]), "name": SAMPLE_RECIPE["name"]})
-        
-    def pretty_print_recipe(self, recipe):
-        if not recipe:
-            print("No recipe found.")
-            return
-            
-        print(f"\n{'=' * 40}")
-        print(f"Recipe: {recipe['name']}")
-        print(f"{'=' * 40}")
-        print(f"Cooking Time: {recipe['minutes']} minutes")
-        print(f"\nDescription: {recipe['description']}")
-        
-        print("\nIngredients:")
-        for i, ingredient in enumerate(recipe['ingredients'], 1):
-            print(f"  {i}. {ingredient}")
-            
-        print("\nSteps:")
-        for i, step in enumerate(recipe['steps'], 1):
-            print(f"  {i}. {step}")
-            
-        print("\nNutrition Information:")
-        for key, value in recipe['nutrition'].items():
-            print(f"  {key.replace('_', ' ').title()}: {value}")
-            
-        print(f"\nTags: {', '.join(recipe['tags'])}")
-        print(f"{'=' * 40}\n")
+        yield mock_client
 
 def test_mongo_connection():
     """Test connection to MongoDB"""
-    with patch.object(RecipeDatabase, 'connect', return_value=True):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        assert db.connect() == True
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    # Test the connection
+    assert db.connect() == True
+    # Test database and collection access
+    assert db.db.name == 'recipe_database'
+    assert hasattr(db, 'collection')
 
 def test_find_recipes():
     """Test finding recipes"""
-    with patch.object(RecipeDatabase, 'find_recipes', return_value=[SAMPLE_RECIPE]):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        recipes = db.find_recipes(limit=5)
-        assert len(recipes) > 0
-        assert 'name' in recipes[0]
-        assert 'ingredients' in recipes[0]
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes(limit=5)
+    assert len(recipes) > 0
+    assert 'name' in recipes[0]
+    assert 'ingredients' in recipes[0]
+    assert recipes[0]['name'] == "Test Recipe"
 
 def test_find_recipe_by_id():
     """Test finding a recipe by ID"""
-    with patch.object(RecipeDatabase, 'find_recipe_by_id', return_value=SAMPLE_RECIPE):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        recipe_id = SAMPLE_RECIPE['_id']
-        found_recipe = db.find_recipe_by_id(recipe_id)
-        assert found_recipe is not None
-        assert found_recipe['_id'] == recipe_id
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    
+    # Test with ObjectId
+    recipe_id = SAMPLE_RECIPE['_id']
+    found_recipe = db.find_recipe_by_id(recipe_id)
+    assert found_recipe is not None
+    assert found_recipe['_id'] == recipe_id
+    
+    # Test with string ID
+    str_id = str(recipe_id)
+    found_recipe = db.find_recipe_by_id(str_id)
+    assert found_recipe is not None
+    assert str(found_recipe['_id']) == str_id
+    
+    # Test with non-existent ID - mock to return None
+    with patch.object(db.collection, 'find_one', return_value=None):
+        non_existent_id = ObjectId()
+        not_found = db.find_recipe_by_id(non_existent_id)
+        assert not_found is None
 
 def test_search_recipes_by_name():
     """Test search by name functionality"""
-    with patch.object(RecipeDatabase, 'search_recipes_by_name', return_value=[SAMPLE_RECIPE]):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        recipes = db.search_recipes_by_name("Test Recipe")
-        assert len(recipes) > 0
-        assert "Test Recipe" in recipes[0]['name']
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.search_recipes_by_name("Test Recipe")
+    assert len(recipes) > 0
+    assert recipes[0]['name'] == "Test Recipe"
 
 def test_find_recipes_by_tags():
     """Test find by tags functionality"""
-    with patch.object(RecipeDatabase, 'find_recipes_by_tags', return_value=[SAMPLE_RECIPE]):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        recipes = db.find_recipes_by_tags(['breakfast'])
-        assert len(recipes) > 0
-        assert 'breakfast' in recipes[0]['tags']
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes_by_tags(['breakfast'])
+    assert len(recipes) > 0
+    assert 'breakfast' in recipes[0]['tags']
 
 def test_find_recipes_by_ingredients():
     """Test find by ingredients functionality"""
-    with patch.object(RecipeDatabase, 'find_recipes_by_ingredients', return_value=[SAMPLE_RECIPE]):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        recipes = db.find_recipes_by_ingredients(['eggs'])
-        assert len(recipes) > 0
-        assert any('eggs' in ingredient.lower() for ingredient in recipes[0]['ingredients'])
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes_by_ingredients(['eggs'])
+    assert len(recipes) > 0
+    assert 'eggs' in recipes[0]['ingredients']
 
 def test_get_sample_recipes():
     """Test getting sample recipes"""
-    with patch.object(RecipeDatabase, 'get_sample_recipes', return_value=[SAMPLE_RECIPE]):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        samples = db.get_sample_recipes(2)
-        assert len(samples) == 1
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    samples = db.get_sample_recipes(2)
+    assert len(samples) == 1  # Our mock returns just one sample
+    assert samples[0]['name'] == "Test Recipe"
 
 def test_json_encoder():
     """Test JSONEncoder for ObjectId serialization"""
-    # Use a fixed string for the ObjectId to avoid mocking issues
     obj_id = ObjectId("507f1f77bcf86cd799439011")
     data = {"id": obj_id, "name": "test"}
     
-    # Use the actual JSON encoder
+    # Test serialization works without errors
+    encoder = JSONEncoder()
+    json_str = encoder.encode(data)
+    assert "507f1f77bcf86cd799439011" in json_str
+    
+    # Test with json.dumps
     json_str = json.dumps(data, cls=JSONEncoder)
     assert json_str is not None
     assert "507f1f77bcf86cd799439011" in json_str
+    
+    # Verify the serialized data can be parsed back
+    parsed = json.loads(json_str)
+    assert parsed['id'] == "507f1f77bcf86cd799439011"
+    assert parsed['name'] == 'test'
 
 def test_to_json():
     """Test to_json method"""
-    with patch.object(RecipeDatabase, 'to_json', return_value=json.dumps({
-        "_id": str(SAMPLE_RECIPE["_id"]), 
-        "name": SAMPLE_RECIPE["name"]
-    })):
-        db = RecipeDatabase("mongodb://localhost:27017/")
-        json_str = db.to_json(SAMPLE_RECIPE)
-        assert json_str is not None
-        assert SAMPLE_RECIPE['name'] in json_str
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    json_str = db.to_json(SAMPLE_RECIPE)
+    assert json_str is not None
+    assert SAMPLE_RECIPE['name'] in json_str
+    
+    # Verify we can parse the JSON string back
+    parsed = json.loads(json_str)
+    assert parsed['name'] == SAMPLE_RECIPE['name']
+    assert parsed['_id'] == str(SAMPLE_RECIPE['_id'])
 
 def test_exception_handling():
     """Test exception handling in methods"""
-    # Mock methods to return False to simulate exception handling
-    with patch.object(RecipeDatabase, 'connect', return_value=False):
+    # Test connection failure
+    with patch('back_end.mongo_connection.MongoClient', side_effect=Exception("Connection failed")):
         db = RecipeDatabase("mongodb://invalid:27017/")
-        assert db.connect() is False
+        assert db.connect() == False
+    
+    # Test find_recipe_by_id exception handling
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    with patch.object(db.collection, 'find_one', side_effect=Exception("Database error")):
+        assert db.find_recipe_by_id("invalid_id") is None
+    
+    # Test find_recipes exception handling
+    with patch.object(db.collection, 'find', side_effect=Exception("Database error")):
+        assert db.find_recipes() == []
+    
+    # Test get_sample_recipes exception handling
+    with patch.object(db.collection, 'aggregate', side_effect=Exception("Database error")):
+        assert db.get_sample_recipes() == []
+    
+    # Test search_recipes_by_name exception handling
+    with patch.object(db.collection, 'find', side_effect=Exception("Database error")):
+        assert db.search_recipes_by_name("test") == []
+    
+    # Test find_recipes_by_tags exception handling
+    with patch.object(db.collection, 'find', side_effect=Exception("Database error")):
+        assert db.find_recipes_by_tags(["breakfast"]) == []
+    
+    # Test find_recipes_by_ingredients exception handling
+    with patch.object(db.collection, 'find', side_effect=Exception("Database error")):
+        assert db.find_recipes_by_ingredients(["eggs"]) == []
 
 def test_pretty_print_recipe(capfd):
     """Test pretty_print_recipe method"""
-    # Use the existing method to avoid complex patching
-    db = MockDB()
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    
+    # Call the actual method
     db.pretty_print_recipe(SAMPLE_RECIPE)
     out, err = capfd.readouterr()
     
     # Verify the output contains expected content
     assert "Recipe: Test Recipe" in out
     assert "Cooking Time: 30 minutes" in out
+    assert "Ingredients:" in out
+    assert "Steps:" in out
+    assert "Nutrition Information:" in out
+    assert "Tags: breakfast, quick, easy" in out
     
     # Test with None recipe
     db.pretty_print_recipe(None)
