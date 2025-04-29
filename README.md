@@ -48,4 +48,4 @@ http://127.0.0.1:6000
 ---
 
 ## References 📎
-The recipe dataset is from Kaggle [Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions/data), which is a dataset consisting of 180K+ recipes from Food.com. 
+The recipe dataset is from Kaggle [Food.com Recipes and Interactions](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions/data), which is a dataset consisting of 180K+ recipes data crawled from Food.com (GeniusKitchen) online recipe aggregator. 
