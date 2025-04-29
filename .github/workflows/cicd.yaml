@@ -2,7 +2,7 @@ name: Recipe App Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, checkCI]
   pull_request:
 
 jobs:
