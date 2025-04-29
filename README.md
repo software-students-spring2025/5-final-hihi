@@ -8,7 +8,7 @@ An exercise to put to practice software development teamwork, subsystem communic
 # HiHi Recipe 
 ---
 
-## Team Members
+## Team Members ✏️
 - **Eli Sun**: [IDislikeName](https://github.com/IDislikeName)
 - **Jasmine Zhang**: [Jasminezhang666666](https://github.com/Jasminezhang666666)
 - **Yifan Zhang**: [YifanZZZZZZ](https://github.com/YifanZZZZZZ)
