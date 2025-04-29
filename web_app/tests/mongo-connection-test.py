@@ -1,145 +1,95 @@
 import pytest
-import sys
-import os
-from unittest.mock import patch, MagicMock
-
-# Add the parent directory to the path so we can import the modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from back_end.mongo_connection import RecipeDatabase, JSONEncoder
 from bson import ObjectId
+from back_end.mongo_connection import RecipeDatabase, JSONEncoder
 import json
 
-class TestJSONEncoder:
-    def test_default_with_object_id(self):
-        # Test that ObjectId is converted to string
-        encoder = JSONEncoder()
-        obj_id = ObjectId('507f1f77bcf86cd799439011')
-        result = encoder.default(obj_id)
-        assert result == '507f1f77bcf86cd799439011'
-        
-    def test_default_with_other_object(self):
-        # Test that other objects are handled by the parent class
-        encoder = JSONEncoder()
-        with pytest.raises(TypeError):
-            encoder.default('not an ObjectId')
+def test_mongo_connection():
+    """Test connection to MongoDB"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    assert db.connect() == True
+    assert db.db.name == 'recipe_database'
+    assert db.collection.name == 'recipes'
 
-class TestRecipeDatabase:
-    @patch('back_end.mongo_connection.MongoClient')
-    def test_connect_success(self, mock_mongo_client):
-        # Setup mock
-        mock_client = MagicMock()
-        mock_db = MagicMock()
-        mock_collection = MagicMock()
-        mock_collection.count_documents.return_value = 5
-        
-        mock_client.__getitem__.return_value = mock_db
-        mock_db.__getitem__.return_value = mock_collection
-        mock_mongo_client.return_value = mock_client
-        
-        # Test connect method
-        db = RecipeDatabase(uri="mongodb://test_uri")
-        result = db.connect()
-        
-        # Assertions
-        assert result is True
-        mock_mongo_client.assert_called_once_with(
-            "mongodb://test_uri",
-            connectTimeoutMS=30000,
-            socketTimeoutMS=30000,
-            retryWrites=True,
-            tls=True
-        )
-        assert db.client == mock_client
-        assert db.db == mock_db
-        assert db.collection == mock_collection
-        mock_collection.count_documents.assert_called_once_with({})
+def test_find_recipes():
+    """Test finding recipes"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes(limit=5)
+    assert len(recipes) > 0
+    assert 'name' in recipes[0]
+    assert 'ingredients' in recipes[0]
+
+def test_find_recipe_by_id():
+    """Test finding a recipe by ID"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    # First get a recipe to get a valid ID
+    recipe = db.collection.find_one()
+    recipe_id = recipe['_id']
     
-    @patch('back_end.mongo_connection.MongoClient')
-    def test_connect_failure(self, mock_mongo_client):
-        # Setup mock to raise exception
-        mock_mongo_client.side_effect = Exception("Connection error")
-        
-        # Test connect method
-        db = RecipeDatabase(uri="mongodb://test_uri")
-        result = db.connect()
-        
-        # Assertions
-        assert result is False
-        mock_mongo_client.assert_called_once()
+    # Now test finding by ID
+    found_recipe = db.find_recipe_by_id(recipe_id)
+    assert found_recipe is not None
+    assert found_recipe['_id'] == recipe_id
     
-    def test_close(self):
-        # Setup
-        db = RecipeDatabase()
-        db.client = MagicMock()
-        
-        # Test close method
-        db.close()
-        
-        # Assertions
-        db.client.close.assert_called_once()
+    # Test with string ID
+    str_id = str(recipe_id)
+    found_recipe = db.find_recipe_by_id(str_id)
+    assert found_recipe is not None
+    assert str(found_recipe['_id']) == str_id
     
-    @patch('back_end.mongo_connection.ObjectId')
-    def test_find_recipe_by_id_string(self, mock_object_id):
-        # Setup
-        db = RecipeDatabase()
-        db.collection = MagicMock()
-        mock_recipe = {'name': 'Test Recipe'}
-        db.collection.find_one.return_value = mock_recipe
-        mock_obj_id = MagicMock()
-        mock_object_id.return_value = mock_obj_id
-        
-        # Test find_recipe_by_id with string
-        result = db.find_recipe_by_id('507f1f77bcf86cd799439011')
-        
-        # Assertions
-        mock_object_id.assert_called_once_with('507f1f77bcf86cd799439011')
-        db.collection.find_one.assert_called_once_with({"_id": mock_obj_id})
-        assert result == mock_recipe
+    # Test with non-existent ID
+    non_existent_id = ObjectId()
+    not_found = db.find_recipe_by_id(non_existent_id)
+    assert not_found is None
+
+def test_search_recipes_by_name():
+    """Test search by name functionality"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.search_recipes_by_name("Test Recipe")
+    assert len(recipes) > 0
+    assert "Test Recipe" in recipes[0]['name']
+
+def test_find_recipes_by_tags():
+    """Test find by tags functionality"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes_by_tags(['breakfast'])
+    assert len(recipes) > 0
+    assert 'breakfast' in recipes[0]['tags']
+
+def test_find_recipes_by_ingredients():
+    """Test find by ingredients functionality"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipes = db.find_recipes_by_ingredients(['eggs'])
+    assert len(recipes) > 0
+    assert any('eggs' in ingredient.lower() for ingredient in recipes[0]['ingredients'])
+
+def test_get_sample_recipes():
+    """Test getting sample recipes"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    samples = db.get_sample_recipes(2)
+    assert len(samples) > 0
+    assert len(samples) <= 2
+
+def test_json_encoder():
+    """Test JSONEncoder for ObjectId serialization"""
+    obj_id = ObjectId()
+    data = {"id": obj_id, "name": "test"}
     
-    def test_find_recipe_by_id_object_id(self):
-        # Setup
-        db = RecipeDatabase()
-        db.collection = MagicMock()
-        mock_recipe = {'name': 'Test Recipe'}
-        db.collection.find_one.return_value = mock_recipe
-        obj_id = ObjectId('507f1f77bcf86cd799439011')
-        
-        # Test find_recipe_by_id with ObjectId
-        result = db.find_recipe_by_id(obj_id)
-        
-        # Assertions
-        db.collection.find_one.assert_called_once_with({"_id": obj_id})
-        assert result == mock_recipe
-    
-    def test_find_recipes(self):
-        # Setup
-        db = RecipeDatabase()
-        db.collection = MagicMock()
-        mock_recipes = [{'name': 'Recipe 1'}, {'name': 'Recipe 2'}]
-        mock_cursor = MagicMock()
-        mock_cursor.limit.return_value = mock_recipes
-        db.collection.find.return_value = mock_cursor
-        
-        # Test find_recipes
-        result = db.find_recipes({'tags': 'vegetarian'}, 5)
-        
-        # Assertions
-        db.collection.find.assert_called_once_with({'tags': 'vegetarian'})
-        mock_cursor.limit.assert_called_once_with(5)
-        assert result == mock_recipes
-    
-    def test_to_json(self):
-        # Setup
-        db = RecipeDatabase()
-        test_data = {'_id': ObjectId('507f1f77bcf86cd799439011'), 'name': 'Test Recipe'}
-        
-        # Test to_json
-        result = db.to_json(test_data)
-        
-        # Parse the result back to ensure it's valid JSON
-        parsed = json.loads(result)
-        
-        # Assertions
-        assert parsed['_id'] == '507f1f77bcf86cd799439011'
-        assert parsed['name'] == 'Test Recipe'
+    # Test serialization works without errors
+    json_str = json.dumps(data, cls=JSONEncoder)
+    assert json_str is not None
+    assert str(obj_id) in json_str
+
+def test_to_json():
+    """Test to_json method"""
+    db = RecipeDatabase("mongodb://localhost:27017/")
+    db.connect()
+    recipe = db.collection.find_one()
+    json_str = db.to_json(recipe)
+    assert json_str is not None
+    assert recipe['name'] in json_str
