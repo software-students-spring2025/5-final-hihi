@@ -6,7 +6,9 @@
   {% if recommendations %}
     <div class="row g-4">
       {% for meal, recs in recommendations.items() %}
-        <h3 class="mt-4 text-capitalize">{{ meal }}</h3>
+        <div class="col-12">
+          <h3 class="mt-4 text-capitalize">{{ meal }}</h3>
+        </div>
         {% for r in recs %}
           <div class="col-12 col-md-6 col-lg-4">
             <div class="card h-100 shadow-sm">
@@ -17,13 +19,34 @@
               >
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title">{{ r.name }}</h5>
-                <p class="card-text text-truncate">{{ r.description }}</p>
-                <ul class="list-unstyled small mb-2">
-                  <li><strong>Time:</strong> {{ r.minutes }} min</li>
-                  <li><strong>Calories:</strong> {{ r.nutrition.calories }}</li>
+                
+                <p class="mb-2"><strong>Description:</strong><br>{{ r.description }}</p>
+                
+                <ul class="list-unstyled small mb-3">
+                  <li><strong>⏱ Time:</strong> {{ r.minutes }} min</li>
+                  <li><strong>🔥 Calories:</strong> {{ r.nutrition.calories }}</li>
                 </ul>
+                
+                <p class="mb-1"><strong>🥗 Ingredients:</strong></p>
+                <ul class="small mb-3">
+                  {% for ing in r.ingredients %}
+                    <li>{{ ing }}</li>
+                  {% endfor %}
+                </ul>
+                
+                <p class="mb-1"><strong>👩‍🍳 Steps:</strong></p>
+                <ol class="small mb-3">
+                  {% for step in r.steps %}
+                    <li>{{ step }}</li>
+                  {% endfor %}
+                </ol>
+
                 <div class="mt-auto">
-                  <a href="#" class="btn btn-primary w-100">View Recipe</a>
+                  <form action="{{ url_for('save_recipe', recipe_id=r._id) }}" method="POST">
+                    <button type="submit" class="btn btn-success w-100">
+                      Save Recipe
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -36,7 +59,12 @@
   {% endif %}
 
   <div class="mt-4 text-center">
-    <a href="{{ url_for('page1') }}" class="btn btn-outline-secondary">Start Over</a>
+    <a href="{{ url_for('main') }}" class="btn btn-outline-secondary me-2">
+      ← Back to Home
+    </a>
+    <a href="{{ url_for('saved_recipes') }}" class="btn btn-outline-info">
+      💾 View Saved Recipes
+    </a>
   </div>
 </div>
 {% endblock %}
