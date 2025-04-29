@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-
+<div class="absolute top-4 right-4">
+  <a href="{{ url_for('logout') }}"
+     class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 hover:bg-red-200 font-semibold transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5" />
+    </svg>
+    Logout
+  </a>
+</div>
 <div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 via-orange-100 to-yellow-200 px-4 py-10">
   <div class="bg-white rounded-3xl shadow-xl max-w-4xl w-full overflow-hidden">
     

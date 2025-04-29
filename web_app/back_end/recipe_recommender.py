@@ -64,7 +64,7 @@ def recommend_recipes(user_preferences, database):
     }
 
     # Process preferences
-    #print("Diet Selection: ", diet_selections)
+    print("Diet Selection: ", diet_selections)
     for selection in diet_selections:
         if selection in ['vegetarian', 'vegan', 'gluten-free', 'kosher', 'lactose-free']:
             diet_tags_to_include.append(selection)
@@ -74,13 +74,13 @@ def recommend_recipes(user_preferences, database):
             allergy_tags_to_exclude.append('seafood')
         elif selection == 'nuts':
             allergy_tags_to_exclude.append('nuts')
-    #print("Diet: ", allergy_tags_to_exclude)
+    print("Diet: ", allergy_tags_to_exclude)
 
-    #print("Cuisine Selections: ", cuisine_selections)
+    print("Cuisine Selections: ", cuisine_selections)
     for selection in cuisine_selections:
         if selection != "any":
             cuisine_tags.append(selection)
-    #print("Cuisine: ", cuisine_tags)
+    print("Cuisine: ", cuisine_tags)
 
     """ print(meal_type_selections)
     #meal_mapping_reverse = {v: k for k, v in meal_mapping.items()}
@@ -95,7 +95,7 @@ def recommend_recipes(user_preferences, database):
     if not meal_types:
         meal_types = ['breakfast', 'lunch', 'dinner']
 
-    #print("Dish Selections: ", dish_type_selections)
+    print("Dish Selections: ", dish_type_selections)
     for selection in dish_type_selections:
         if selection == 'main_dish':
             dish_types.append('main-dish')
@@ -108,7 +108,7 @@ def recommend_recipes(user_preferences, database):
         elif selection == "beverage":
             dish_types.append('beverages')
     # dish_types = dish_type_selections
-    #print("Dish: ", dish_types)
+    print("Dish: ", dish_types)
     
     # If no dish types selected, default to main dish
     if not dish_types:
@@ -314,7 +314,7 @@ def recommend_recipes(user_preferences, database):
                     "meal_tags": [meal],
                     "dish_tags": [dish_type]
                 }
-                # print(search_params)
+                print(search_params)
                 # Try to find a recipe for this dish type
                 matched = list(database.find(query).limit(5))
                 matched = [r for r in matched if r['_id'] not in used_recipe_ids]
