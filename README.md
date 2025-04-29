@@ -24,6 +24,7 @@ HiHi recipe is a containerized web application that allows users to record audio
 ## Docker Images 📌
 
 Web Application: [hihi_recipe web-app docker image](https://hub.docker.com/r/yz9910/web_app)
+
 Database: [hihi_recipe database docker image](https://hub.docker.com/r/yz9910/mongo)
 
 
