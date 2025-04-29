@@ -3,33 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Recipe Recommender</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <a class="navbar-brand" href="{{ url_for('main') }}">🍽️ Recipe Recommender</a>
+<body class="{% block body_class %}min-h-screen bg-gradient-to-r from-yellow-100 via-orange-200 to-yellow-300{% endblock %}">
 
-      <div class="ms-auto d-flex align-items-center gap-2">
-        {% if session.username %}
-          <a class="btn btn-outline-primary btn-sm" href="{{ url_for('main') }}">Home</a>
-          <a class="btn btn-outline-info btn-sm" href="{{ url_for('saved_recipes') }}">Saved Recipes</a>
-          <span class="navbar-text">Hi, {{ session.username }}</span>
-          <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-          <a class="btn btn-outline-primary btn-sm" href="{{ url_for('login') }}">Login</a>
-        {% endif %}
-      </div>
-    </div>
-  </nav>
+  {% block content %}{% endblock %}
 
-  <div class="container my-5">
-    {% block content %}{% endblock %}
-  </div>
-
-  <footer class="bg-light text-center py-3">
-    &copy; 2024 Recipe Recommender. All rights reserved.
-  </footer>
 </body>
 </html>
