@@ -20,10 +20,6 @@
               <li><strong>Calories:</strong> {{ r.nutrition.calories }}</li>
             </ul>
             <div class="mt-auto">
-              <a
-                href="{{ url_for('view_recipe', recipe_id=r._id) }}"
-                class="btn btn-primary w-100 mb-2"
-              >View Details</a>
               <form
                 action="{{ url_for('unsave_recipe', recipe_id=r._id) }}"
                 method="POST"
