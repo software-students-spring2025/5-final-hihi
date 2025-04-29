@@ -49,9 +49,10 @@ jobs:
       - name: Run tests with coverage
         run: |
           echo "Running pytest on recipe-recommender-test, recipe-system-test, mongo-connection-test"
-          pytest tests/recipe-recommender-test.py \
-                 tests/recipe-system-test.py \
-                 tests/mongo-connection-test.py \
+          pytest web_app/tests/recipe-recommender-test.py \
+                  web_app/tests/recipe-system-test.py \
+                  web_app/tests/mongo-connection-test.py \
+
                  --cov=back_end \
                  --cov-report=term-missing \
                  --cov-fail-under=80
