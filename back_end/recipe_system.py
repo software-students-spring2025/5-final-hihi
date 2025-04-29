@@ -1,8 +1,9 @@
 import json
 import random
 from pprint import pprint
-from back_end.mongo_connection import RecipeDatabase, JSONEncoder
-from back_end.recipe_recommender import recommend_recipes
+from .mongo_connection import RecipeDatabase
+from .mongo_connection import JSONEncoder
+from .recipe_recommender import recommend_recipes
 
 class RecipeRecommendationSystem:
     def __init__(self):
@@ -10,8 +11,11 @@ class RecipeRecommendationSystem:
         self.connected = self.db.connect()
         
     def __del__(self):
-        if hasattr(self, 'db') and self.db:
-            self.db.close()
+        try:
+            self.db_connection.close()
+        except Exception:
+            pass  # Ignore shutdown errors
+
     
     def get_recommendations(self, user_preferences):
         """Get recipe recommendations based on user preferences"""
@@ -21,6 +25,7 @@ class RecipeRecommendationSystem:
             
         # Use the recommend_recipes function from recipe_recommender.py
         recommendations = recommend_recipes(user_preferences, self.db.collection)
+        # print(user_preferences)
         return recommendations
     
     def display_recommendations(self, recommendations):
@@ -75,14 +80,18 @@ class RecipeRecommendationSystem:
     
     def export_recommendations_to_json(self, recommendations, filename):
         """Export recommendations to a JSON file"""
+        from bson import json_util
+
         try:
             with open(filename, 'w') as f:
-                json.dump(recommendations, f, cls=self.db.JSONEncoder, indent=2)
+                f.write(json_util.dumps(recommendations, indent=2))
             print(f"Recommendations exported to {filename}")
             return True
         except Exception as e:
             print(f"Error exporting recommendations: {e}")
             return False
+
+
 
 # Example usage
 if __name__ == "__main__":
@@ -92,12 +101,12 @@ if __name__ == "__main__":
     # Example user preferences
     user_preferences = {
         'question1': [1],  # Vegetarian
-        'question2': 3,     # Moderate calories (1600-1800)
-        'question3': 2,     # 30 minutes to 1 hour
-        'question4': [4],   # Italian cuisine
-        'question5': 1,     # Beginner cook
-        'question6': [3, 4], # Lunch and dinner
-        'question7': [1, 3]  # Main dish and dessert
+        'question2': 4,     # Moderate calories (1600-1800)
+        'question3': 4,     # 30 minutes to 1 hour
+        'question4': [1],   # Italian cuisine
+        'question5': 2,     # Beginner cook
+        'question6': [2, 4], # Lunch and dinner
+        'question7': [1, 3, 5]  # Main dish and dessert
     }
     
     # Get recommendations based on user preferences
