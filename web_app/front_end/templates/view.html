@@ -1,56 +1,59 @@
-{# templates/view.html #}
 {% extends "base.html" %}
-
 {% block content %}
-<!-- Define a JS constant for your “default” cuisine image -->
-<script>
-  const DEFAULT_CUISINE_IMG = "{{ url_for('static', filename='images/cuisines/default.jpg') }}";
-</script>
 
-<div class="container my-5">
-  <div class="card shadow-sm">
-    {# normalize the cuisine tag to a filename: lowercase & hyphens #}
-    {% set img_name = recipe.cuisine|lower|replace(' ', '-') ~ '.jpg' %}
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 via-orange-100 to-yellow-200 px-4 py-10">
+  <div class="bg-white rounded-3xl shadow-xl max-w-4xl w-full overflow-hidden">
+    
+    <!-- 🍽 Randomly Assigned Image -->
+    <img src="{{ url_for('static', filename='images/cuisines/' ~ recipe_img) }}"
+         alt="Recipe Image"
+         class="w-full h-64 object-cover rounded-t-3xl">
 
-    <img
-      src="{{ url_for('static', filename='images/cuisines/' ~ img_name) }}"
-      class="card-img-top"
-      alt="{{ recipe.cuisine|title }}"
-      onerror="this.onerror=null; this.src=DEFAULT_CUISINE_IMG;"
-    >
+    <!-- 📋 Recipe Details -->
+    <div class="p-8 space-y-6">
+      <h1 class="text-3xl font-bold text-gray-800">{{ recipe.name }}</h1>
+      <p class="text-gray-600">{{ recipe.description }}</p>
 
-    <div class="card-body">
-      <h2 class="card-title">{{ recipe.name }}</h2>
-      <p class="text-muted">{{ recipe.description }}</p>
-
-      <ul class="list-inline mb-3">
-        <li class="list-inline-item"><strong>⏱</strong> {{ recipe.minutes }} min</li>
-        <li class="list-inline-item"><strong>🔥</strong> {{ recipe.nutrition.calories }} cal</li>
+      <div class="flex flex-wrap gap-4 text-sm text-gray-700">
+        <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">
+          ⏱ {{ recipe.minutes }} min
+        </div>
+        <div class="bg-red-100 text-red-800 px-3 py-1 rounded-full">
+          🔥 {{ recipe.nutrition.calories }} cal
+        </div>
         {% for key, val in recipe.nutrition.items() if key != 'calories' %}
-          <li class="list-inline-item">
-            <strong>{{ key.replace('_',' ').title() }}:</strong> {{ val }}
-          </li>
+        <div class="bg-gray-100 px-3 py-1 rounded-full">
+          {{ key.replace('_', ' ').title() }}: {{ val }}
+        </div>
         {% endfor %}
-      </ul>
+      </div>
 
-      <h5>🥗 Ingredients</h5>
-      <ul>
-        {% for ing in recipe.ingredients %}
-          <li>{{ ing }}</li>
-        {% endfor %}
-      </ul>
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-2">🥗 Ingredients</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-1">
+          {% for ing in recipe.ingredients %}
+            <li>{{ ing }}</li>
+          {% endfor %}
+        </ul>
+      </div>
 
-      <h5 class="mt-4">👩‍🍳 Steps</h5>
-      <ol>
-        {% for step in recipe.steps %}
-          <li>{{ step }}</li>
-        {% endfor %}
-      </ol>
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-2">👩‍🍳 Steps</h2>
+        <ol class="list-decimal list-inside text-gray-700 space-y-1">
+          {% for step in recipe.steps %}
+            <li>{{ step }}</li>
+          {% endfor %}
+        </ol>
+      </div>
 
-      <a href="{{ request.referrer or url_for('main') }}" class="btn btn-outline-secondary mt-4">
-        ← Back
-      </a>
+      <div class="pt-6">
+        <a href="{{ request.referrer or url_for('results') }}"
+           class="inline-block px-6 py-2 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition">
+          ← Back
+        </a>
+      </div>
     </div>
   </div>
 </div>
+
 {% endblock %}

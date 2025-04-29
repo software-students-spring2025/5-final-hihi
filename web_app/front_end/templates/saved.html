@@ -1,49 +1,63 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="mb-4">💾 Your Saved Recipes</h2>
 
-{% if saved %}
-  <div class="row g-4">
-    {% for r in saved %}
-      <div class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
+<div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 via-orange-100 to-yellow-200 py-10 px-4">
+  <div class="w-full max-w-7xl">
+
+    <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">
+      💾 Your Saved Recipes
+    </h2>
+
+    {% if saved %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for r in saved %}
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition">
           <img
-            src="{{ url_for('static', filename='images/cuisines/' ~ r.cuisine ~ '.jpg') }}"
-            class="card-img-top" alt="{{ r.cuisine }}"
+            src="{{ url_for('static', filename='images/cuisines/' ~ r.random_image) }}"
+            class="h-48 w-full object-cover" alt="Recipe Image"
           >
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ r.name }}</h5>
-            <p class="card-text text-truncate">{{ r.description }}</p>
-            <ul class="list-unstyled small mb-2">
-              <li><strong>Time:</strong> {{ r.minutes }} min</li>
-              <li><strong>Calories:</strong> {{ r.nutrition.calories }}</li>
+
+          <div class="p-5 flex flex-col flex-grow">
+            <h5 class="text-lg font-bold text-gray-800 mb-1">{{ r.name }}</h5>
+            <p class="text-sm text-gray-600 line-clamp-3">{{ r.description }}</p>
+            <ul class="text-sm text-gray-500 mt-3 mb-4">
+              <li><strong>⏱ Time:</strong> {{ r.minutes }} min</li>
+              <li><strong>🔥 Calories:</strong> {{ r.nutrition.calories }}</li>
             </ul>
-            <div class="mt-auto d-grid gap-2">
+            <div class="mt-auto space-y-2">
               <a
                 href="{{ url_for('view_recipe', recipe_id=r._id) }}"
-                class="btn btn-outline-primary"
-              >View Details</a>
-              <form
-                action="{{ url_for('unsave_recipe', recipe_id=r._id) }}"
-                method="POST"
-              >
-                <button type="submit" class="btn btn-danger">
-                  Remove from Saved
+                class="block text-center px-4 py-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold transition">
+                View Details
+              </a>
+              <form action="{{ url_for('unsave_recipe', recipe_id=r._id) }}" method="POST">
+                <button type="submit"
+                        class="w-full px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold transition">
+                  🗑 Remove from Saved
                 </button>
               </form>
             </div>
           </div>
         </div>
+        {% endfor %}
       </div>
-    {% endfor %}
-  </div>
-{% else %}
-  <p>You haven’t saved any recipes yet. Go <a href="{{ url_for('page1') }}">get some recommendations</a>!</p>
-{% endif %}
+    {% else %}
+      <p class="text-center text-lg text-gray-700 mt-8">
+        You haven’t saved any recipes yet. Go
+        <a href="{{ url_for('page1') }}" class="text-orange-600 font-semibold hover:underline">
+          get some recommendations
+        </a>!
+      </p>
+    {% endif %}
 
-<div class="mt-4">
-  <a href="{{ url_for('main') }}" class="btn btn-outline-secondary">
-    ← Back to Home
-  </a>
+    <div class="mt-12 text-center">
+      <a href="{{ url_for('main') }}"
+         class="inline-block px-6 py-2 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition">
+        ← Back to Home
+      </a>
+    </div>
+
+  </div>
 </div>
+
 {% endblock %}

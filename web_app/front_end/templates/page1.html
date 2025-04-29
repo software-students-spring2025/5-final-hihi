@@ -1,41 +1,51 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="main-container">
-  <h2 class="page-title">Question 1: Dietary preferences & allergies</h2>
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 via-orange-100 to-yellow-200">
+  <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-4xl">
+    
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+      Question 1: Dietary Preferences & Allergies
+    </h2>
 
-  <form method="POST">
-    <div class="d-grid gap-3">
+    <form method="POST">
       {% set opts = [
-        ('vegetarian','Vegetarian'),
-        ('vegan','Vegan'),
-        ('gluten_free','Gluten-Free'),
-        ('kosher','Kosher'),
-        ('lactose_free','Lactose-Free'),
-        ('eggs_dairy','Eggs & Dairy Allergy'),
-        ('seafood','Seafood Allergy'),
-        ('nuts','Nut Allergy'),
-        ('no_restriction','No Preference')
+        ('vegetarian','Vegetarian', '🥦'),
+        ('vegan','Vegan', '🌱'),
+        ('gluten_free','Gluten-Free', '🍞'),
+        ('kosher','Kosher', '✡️'),
+        ('lactose_free','Lactose-Free', '🥛🚫'),
+        ('eggs_dairy','Eggs & Dairy Allergy', '🍳'),
+        ('seafood','Seafood Allergy', '🦐'),
+        ('nuts','Nut Allergy', '🥜'),
+        ('no_restriction','No Preference', '👌')
       ] %}
-      {% for val,label in opts %}
-        <input 
-          type="checkbox"
-          class="btn-check"
-          name="response1"
-          id="r1_{{ loop.index }}"
-          value="{{ val }}"
-          autocomplete="off"
-          {% if val in response1 %}checked{% endif %}
-        >
-        <label class="btn btn-outline-primary btn-lg" for="r1_{{ loop.index }}">
-          {{ label }}
-        </label>
-      {% endfor %}
-    </div>
 
-    <div class="d-flex justify-content-between mt-4">
-      <a href="{{ url_for('login') }}" class="btn btn-secondary">← Back</a>
-      <button type="submit" class="btn btn-primary">Next →</button>
-    </div>
-  </form>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for val, label, icon in opts %}
+          <div class="relative">
+            <input type="checkbox" name="dietary_preferences[]" value="{{ val }}" id="r1_{{ val }}" class="peer hidden" {% if val in response1 %}checked{% endif %}>
+            <label for="r1_{{ val }}"
+              class="block w-full items-center justify-start gap-3 p-4 rounded-xl border-2 border-gray-200 bg-white shadow-sm cursor-pointer transition hover:shadow-md peer-checked:border-yellow-400 peer-checked:bg-yellow-50 peer-checked:shadow-md">
+              <div class="flex items-center">
+                <span class="text-2xl mr-3">{{ icon }}</span>
+                <span class="font-semibold text-gray-700">{{ label }}</span>
+              </div>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="flex justify-between pt-8">
+        <a href="{{ url_for('main') }}"
+           class="px-6 py-2 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition">
+          ← Back
+        </a>
+        <button type="submit"
+                class="px-6 py-2 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold transition">
+          Next →
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

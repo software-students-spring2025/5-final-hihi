@@ -1,31 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="main-container">
-  <h2 class="page-title">Question 5: Are you a beginner cook?</h2>
-  <form method="POST">
-    <div class="d-grid gap-3">
+
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-100 via-orange-100 to-yellow-200">
+  <div class="bg-white shadow-xl rounded-3xl p-10 w-full max-w-3xl space-y-10">
+
+    <h2 class="text-3xl font-bold text-gray-800 text-center">
+      👨‍🍳 Question 5: Are you a beginner cook?
+    </h2>
+
+    <form method="POST" class="space-y-10">
       {% set opts = [
         ('1','Yes, I’m a beginner'),
         ('2','No, I’m experienced')
       ] %}
-      {% for val,label in opts %}
-        <input
-          type="radio"
-          class="btn-check"
-          name="response5"
-          id="r5_{{ loop.index }}"
-          value="{{ val }}"
-          autocomplete="off"
-          required
-          {% if response5 == val %}checked{% endif %}
-        >
-        <label class="btn btn-outline-primary btn-lg" for="r5_{{ loop.index }}">{{ label }}</label>
-      {% endfor %}
-    </div>
-    <div class="d-flex justify-content-between mt-4">
-      <a href="{{ url_for('page4') }}" class="btn btn-secondary">← Previous</a>
-      <button type="submit" class="btn btn-primary">Next →</button>
-    </div>
-  </form>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {% for val, label in opts %}
+          <div class="relative">
+            <input type="radio" name="response5" value="{{ val }}" id="r5_{{ val }}" class="peer hidden" required {% if response5 == val %}checked{% endif %}>
+
+            <label for="r5_{{ val }}"
+              class="flex flex-col items-center justify-center px-6 py-5 rounded-2xl border-2 border-gray-200 bg-white shadow-sm cursor-pointer transition transform hover:-translate-y-1 hover:shadow-lg peer-checked:border-yellow-400 peer-checked:bg-yellow-50 peer-checked:shadow-md text-center">
+              <span class="font-semibold text-gray-700 text-lg">{{ label }}</span>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="flex justify-between pt-4">
+        <a href="{{ url_for('page4') }}"
+           class="px-6 py-3 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition">
+          ← Previous
+        </a>
+        <button type="submit"
+                class="px-6 py-3 rounded-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold transition transform hover:scale-105 shadow-md hover:shadow-lg">
+          Next →
+        </button>
+      </div>
+    </form>
+
+  </div>
 </div>
+
 {% endblock %}
