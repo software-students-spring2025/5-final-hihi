@@ -1,19 +1,35 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h3 class="mb-4">Question 3: What type of dishes do you prefer?</h3>
-
-<form method="POST">
-    <select class="form-select" name="response3" required>
-        <option value="">Choose dish type...</option>
-        <option value="main_dish" {% if response3 == 'main_dish' %}selected{% endif %}>Main Dish</option>
-        <option value="desserts" {% if response3 == 'desserts' %}selected{% endif %}>Desserts</option>
-        <option value="soups_stews" {% if response3 == 'soups_stews' %}selected{% endif %}>Soups & Stews</option>
-        <option value="beverage" {% if response3 == 'beverage' %}selected{% endif %}>Beverage</option>
-        <option value="breakfast" {% if response3 == 'breakfast' %}selected{% endif %}>Breakfast</option>
-    </select>
-
-    <button type="submit" name="previous" class="btn btn-secondary mt-3">Previous</button>
-    <button type="submit" class="btn btn-success mt-3">Submit</button>
-</form>
+<div class="main-container">
+  <h2 class="page-title">Question 3: How long do you spend preparing each meal?</h2>
+  <form method="POST">
+    <div class="d-grid gap-3">
+      {% set opts = [
+        ('1','Less than 30 minutes'),
+        ('2','30 minutes – 1 hour'),
+        ('3','1 hour – 1.5 hours'),
+        ('4','1.5 hours – 2 hours'),
+        ('5','More than 2 hours'),
+        ('6','No preference')
+      ] %}
+      {% for val,label in opts %}
+        <input
+          type="radio"
+          class="btn-check"
+          name="response3"
+          id="r3_{{ loop.index }}"
+          value="{{ val }}"
+          autocomplete="off"
+          required
+          {% if response3 == val %}checked{% endif %}
+        >
+        <label class="btn btn-outline-primary btn-lg" for="r3_{{ loop.index }}">{{ label }}</label>
+      {% endfor %}
+    </div>
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('page2') }}" class="btn btn-secondary">← Previous</a>
+      <button type="submit" class="btn btn-primary">Next →</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

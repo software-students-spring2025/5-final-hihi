@@ -1,4 +1,4 @@
-from mongo_connection import RecipeDatabase
+from back_end.mongo_connection import RecipeDatabase, JSONEncoder
 
 def test_connection():
     print("Starting connection test...")

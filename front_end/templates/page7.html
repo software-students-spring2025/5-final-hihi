@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main-container">
+  <h2 class="page-title">Question 7: Which dish types?</h2>
+
+  <form method="POST">
+    <div class="d-grid gap-3">
+      {% set opts = [
+        ('main_dish','Main Dish'),
+        ('side_dishes','Side Dishes'),
+        ('desserts','Desserts'),
+        ('appetizers','Appetizers'),
+        ('soups_stews','Soups & Stews'),
+        ('beverage','Beverage')
+      ] %}
+      {% for val,label in opts %}
+        <input 
+          type="checkbox"
+          class="btn-check"
+          name="response7"
+          id="r7_{{ loop.index }}"
+          value="{{ val }}"
+          autocomplete="off"
+          {% if val in response7 %}checked{% endif %}
+        >
+        <label class="btn btn-outline-primary btn-lg" for="r7_{{ loop.index }}">{{ label }}</label>
+      {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('page6') }}" class="btn btn-secondary">← Previous</a>
+      <button type="submit" class="btn btn-success">Submit →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -4,8 +4,14 @@ import copy
 def recommend_recipes(user_preferences, database):
     # 1. Extract user preferences
     diet_selections = user_preferences.get('question1', [10])  # Default "no restriction"
-    calorie_option = user_preferences.get('question2', 7)      # Default "no restriction"
-    time_option = user_preferences.get('question3', 6)         # Default "any time"
+    try:
+        calorie_option = int(user_preferences.get('question2', 7))
+    except (TypeError, ValueError):
+        calorie_option = 7      # Default "no restriction"
+    try:
+        time_option = int(user_preferences.get('question3', 6))
+    except (TypeError, ValueError):
+        time_option = 6         # Default "any time"
     cuisine_selections = user_preferences.get('question4', [15])  # Default "any cuisine"
     is_beginner = user_preferences.get('question5', 2) == 1    # Default not beginner
     meal_type_selections = user_preferences.get('question6', [])

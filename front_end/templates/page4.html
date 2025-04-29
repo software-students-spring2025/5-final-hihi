@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main-container">
+  <h2 class="page-title">Question 4: Which cuisines do you prefer?</h2>
+
+  <form method="POST">
+    <div class="d-grid gap-3">
+      {% set opts = [
+        ('north-american','North American'),
+        ('european','European'),
+        ('asian','Asian'),
+        ('italian','Italian'),
+        ('mexican','Mexican'),
+        ('canadian','Canadian'),
+        ('australian','Australian'),
+        ('midwestern','Midwestern'),
+        ('african','African'),
+        ('indian','Indian'),
+        ('greek','Greek'),
+        ('french','French'),
+        ('middle_eastern','Middle Eastern'),
+        ('chinese','Chinese'),
+        ('any','Any Cuisine')
+      ] %}
+      {% for val,label in opts %}
+        <input 
+          type="checkbox"
+          class="btn-check"
+          name="response4"
+          id="r4_{{ loop.index }}"
+          value="{{ val }}"
+          autocomplete="off"
+          {% if val in response4 %}checked{% endif %}
+        >
+        <label class="btn btn-outline-primary btn-lg" for="r4_{{ loop.index }}">
+          {{ label }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('page3') }}" class="btn btn-secondary">← Previous</a>
+      <button type="submit" class="btn btn-primary">Next →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

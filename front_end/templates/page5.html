@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main-container">
+  <h2 class="page-title">Question 5: Are you a beginner cook?</h2>
+  <form method="POST">
+    <div class="d-grid gap-3">
+      {% set opts = [
+        ('1','Yes, I’m a beginner'),
+        ('2','No, I’m experienced')
+      ] %}
+      {% for val,label in opts %}
+        <input
+          type="radio"
+          class="btn-check"
+          name="response5"
+          id="r5_{{ loop.index }}"
+          value="{{ val }}"
+          autocomplete="off"
+          required
+          {% if response5 == val %}checked{% endif %}
+        >
+        <label class="btn btn-outline-primary btn-lg" for="r5_{{ loop.index }}">{{ label }}</label>
+      {% endfor %}
+    </div>
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('page4') }}" class="btn btn-secondary">← Previous</a>
+      <button type="submit" class="btn btn-primary">Next →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
