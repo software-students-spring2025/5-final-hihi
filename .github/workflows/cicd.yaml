@@ -63,8 +63,8 @@ jobs:
         run: |
           echo "Running pytest on recipe_recommender_test, recipe_system_test, mongo_connection_test"
           pytest web_app/tests/recipe_recommender_test.py \
-              web_app/tests/recipe-system-test.py \
-              web_app/tests/mongo-connection-test.py \
+              web_app/tests/recipe_system_test.py \
+              web_app/tests/mongo_connection_test.py \
               --cov=back_end \
               --cov-report=term-missing
 
