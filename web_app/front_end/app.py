@@ -71,12 +71,32 @@ def logout():
 def main():
     return render_template('main.html')
 
-@app.route('/saved_recipes')
+""" @app.route('/saved_recipes')
 def saved_recipes():
     saved_docs = list(saved_coll.find({'user': session['username']}))
     saved_ids  = [d['recipe_id'] for d in saved_docs]
     recipes    = list(db.collection.find({'_id': {'$in': saved_ids}}))
+    return render_template('saved.html', saved=recipes) """
+
+@app.route('/saved_recipes')
+def saved_recipes():
+    saved_docs = list(saved_coll.find({'user': session['username']}))
+    saved_ids = [d['recipe_id'] for d in saved_docs]
+    recipes = list(db.collection.find({'_id': {'$in': saved_ids}}))
+
+    # Load cuisine images from static folder
+    cuisine_img_folder = os.path.join(app.static_folder, 'images/cuisines')
+    available_images = [
+        f for f in os.listdir(cuisine_img_folder)
+        if f.lower().endswith(('.jpg', '.jpeg', '.png'))
+    ]
+
+    # Assign a random image to each recipe
+    for recipe in recipes:
+        recipe['random_image'] = random.choice(available_images) if available_images else 'default.jpg'
+
     return render_template('saved.html', saved=recipes)
+
 
 # ── SAVE / UNSAVE ───────────────────────────────────────────────────
 @app.route('/save_recipe/<recipe_id>', methods=['POST'])
