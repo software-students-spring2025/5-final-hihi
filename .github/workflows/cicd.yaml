@@ -57,25 +57,25 @@ jobs:
           mkdir -p tests
           echo "# Package init" > tests/__init__.py
           
-          # Create basic test file
+          # Create basic test file - note the proper indentation for YAML heredoc
           cat > tests/test_basic.py << 'EOL'
-import pytest
+          import pytest
 
-def test_environment():
-    """Basic test"""
-    assert True
+          def test_environment():
+              """Basic test"""
+              assert True
 
-def test_bson_import():
-    """Test bson imports correctly"""
-    from bson import ObjectId
-    assert ObjectId() is not None
-EOL
+          def test_bson_import():
+              """Test bson imports correctly"""
+              from bson import ObjectId
+              assert ObjectId() is not None
+          EOL
           
           # Run tests
           pytest tests/ --cov=. -v
           
           # Report coverage
-          coverage=$(pytest --cov=. | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          coverage=$(pytest --cov=. | grep TOTAL | awk '{print $4}' | sed 's/%//') 
           echo "Coverage: $coverage%"
           
           if (( $(echo "$coverage < 80" | bc -l) )); then
