@@ -93,6 +93,11 @@ def unsave_recipe(recipe_id):
     flash("Removed from saved recipes", "info")
     return redirect(request.referrer or url_for('saved_recipes'))
 
+@app.route('/view_recipe/<recipe_id>', methods=['POST'])
+def view_recipe(recipe_id):
+    viewing_recipe = db.collection.find({'_id': {'$in': recipe_id}})
+    return render_template('recipe.html', recipe=viewing_recipe)
+
 # ── QUIZ PAGES ───────────────────────────────────────────────────────
 @app.route('/', methods=['GET'])
 def home():
