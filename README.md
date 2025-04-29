@@ -17,7 +17,7 @@ An exercise to put to practice software development teamwork, subsystem communic
 
 ## Project Overview 📝
 
-HiHi recipe is a containerized web application that allows users to record audio in the browser, and detects the emotional content analyzing by machine learning models.
+Hihi Recipe empowers users to take control of their health and eating habits by offering personalized recipe recommendations based on their preferences and dietary needs. It intelligently filters recipes by time, nutrition, and cuisine, helping users make smarter meal choices. Our goal is to encourage users to discover meals that truly match their lifestyle.
 
 ---
 
@@ -27,19 +27,8 @@ Web Application: [hihi_recipe web-app docker image](https://hub.docker.com/r/yz9
 
 Database: [hihi_recipe database docker image](https://hub.docker.com/r/yz9910/mongo)
 
-
-### 2. Start the System with Docker
-
-```bash
-docker-compose build --no-cache
-docker-compose up  
-```
-
-### 3. Visit the Web through Browser
-
-```bash
-http://127.0.0.1:6000
-```
+## Application Deployment
+The application is deployed and accessible at: [https://recipe-search-app-8umjs.ondigitalocean.app/login](https://recipe-search-app-8umjs.ondigitalocean.app/login)
 
 ---
 
