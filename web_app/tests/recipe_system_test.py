@@ -177,3 +177,19 @@ def test_search_by_ingredients_returns_expected_results():
     assert isinstance(results, list)
     assert results[0]['name'] == 'Egg Sandwich'
     assert ingredients[0] in results[0]['ingredients']
+
+def test_export_recommendations_to_json_error(monkeypatch):
+    system = RecipeRecommendationSystem()
+
+    # Simulate a recommendation dictionary
+    recommendations = {"lunch": [{"name": "Mock Recipe"}]}
+
+    # Patch built-in open to raise an exception
+    def mock_open(*args, **kwargs):
+        raise IOError("Mocked file write error")
+
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    # Should catch the exception and return False
+    result = system.export_recommendations_to_json(recommendations, "invalid/path.json")
+    assert result is False

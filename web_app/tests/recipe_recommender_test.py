@@ -140,3 +140,42 @@ def test_relaxation_strategy_last_resort(test_db):
     }
     result = find_with_improved_relaxation(test_db, search_params)
     assert result is None or result is not None
+
+def test_recommend_recipes_calorie_type_error():
+    user_preferences = {
+        'question1': [],
+        'question2': "invalid",  # Triggers ValueError
+        'question3': 2,
+        'question4': ["any"],
+        'question5': 2,
+        'question6': ['breakfast'],
+        'question7': ['main_dish']
+    }
+
+    mock_db = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.limit.return_value = []
+    mock_db.find.return_value = mock_cursor
+
+    result = recommend_recipes(user_preferences, mock_db)
+    assert isinstance(result, dict)
+
+
+def test_recommend_recipes_time_type_error():
+    user_preferences = {
+        'question1': [],
+        'question2': 4,
+        'question3': None,  # Triggers TypeError
+        'question4': ["any"],
+        'question5': 2,
+        'question6': ['breakfast'],
+        'question7': ['main_dish']
+    }
+
+    mock_db = MagicMock()
+    mock_cursor = MagicMock()
+    mock_cursor.limit.return_value = []
+    mock_db.find.return_value = mock_cursor
+
+    result = recommend_recipes(user_preferences, mock_db)
+    assert isinstance(result, dict)
