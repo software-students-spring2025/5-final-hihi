@@ -139,7 +139,7 @@ def view_recipe(recipe_id):
 # ── QUIZ PAGES ───────────────────────────────────────────────────────
 @app.route('/')
 def home():
-    return redirect(url_for('main'))
+    return redirect(url_for('login'))
 
 @app.route('/page1', methods=['GET', 'POST'])
 def page1():
@@ -405,6 +405,14 @@ def results():
             'question7': session.get('response7', [])
         }
     )
+
+@app.route('/start_quiz')
+def start_quiz():
+    # Clear all quiz responses before starting a new quiz
+    for i in range(1, 8):
+        session.pop(f'response{i}', None)
+    return redirect(url_for('page1'))
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5001)
