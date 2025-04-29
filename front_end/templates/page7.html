@@ -23,9 +23,7 @@
           autocomplete="off"
           {% if val in response7 %}checked{% endif %}
         >
-        <label class="btn btn-outline-primary btn-lg" for="r7_{{ loop.index }}">
-          {{ label }}
-        </label>
+        <label class="btn btn-outline-primary btn-lg" for="r7_{{ loop.index }}">{{ label }}</label>
       {% endfor %}
     </div>
 
