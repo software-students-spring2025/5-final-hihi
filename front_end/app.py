@@ -96,7 +96,7 @@ def page2():
     return render_template('page2.html', response2=session.get('response2',''))
 
 @app.route('/page3', methods=['GET', 'POST'])
-def page2():
+def page3():
     if request.method == 'POST':
         if 'previous' in request.form:
             return redirect(url_for('page2'))
