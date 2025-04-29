@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pymongo flask python-dotenv pytest pytest-cov
+          pip install pymongo flask python-dotenv mongoengine pytest pytest-cov
 
       - name: Setup test database
         run: |
@@ -58,13 +58,10 @@ jobs:
           print('✅ Mock data inserted')
           "
 
-
       - name: Run tests with coverage
         run: |
-          echo "Running pytest on recipe_recommender_test, recipe_system_test, mongo_connection_test"
-          pytest web_app/tests/recipe_recommender_test.py \
-              web_app/tests/recipe_system_test.py \
-              web_app/tests/mongo_connection_test.py \
-              --cov=back_end \
-              --cov-report=term-missing
-
+          echo "Running pytest with coverage"
+          pytest web_app/tests/ \
+            --cov=web_app/back_end \
+            --cov-report=term-missing \
+            --cov-fail-under=80
