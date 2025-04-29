@@ -1,65 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="main-container">
-  <h2 class="page-title">💾 Your Saved Recipes</h2>
+<h2 class="mb-4">💾 Your Saved Recipes</h2>
 
-  {% if saved %}
-    <div class="row g-4">
-      {% for r in saved %}
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <img
-              src="{{ url_for('static', filename='images/cuisines/' ~ r.cuisine ~ '.jpg') }}"
-              class="card-img-top"
-              alt="{{ r.cuisine }}"
-            >
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ r.name }}</h5>
-              
-              <p class="mb-2"><strong>Description:</strong><br>{{ r.description }}</p>
-              
-              <ul class="list-unstyled small mb-3">
-                <li><strong>⏱ Time:</strong> {{ r.minutes }} min</li>
-                <li><strong>🔥 Calories:</strong> {{ r.nutrition.calories }}</li>
-              </ul>
-              
-              <p class="mb-1"><strong>🥗 Ingredients:</strong></p>
-              <ul class="small mb-3">
-                {% for ing in r.ingredients %}
-                  <li>{{ ing }}</li>
-                {% endfor %}
-              </ul>
-              
-              <p class="mb-1"><strong>👩‍🍳 Steps:</strong></p>
-              <ol class="small mb-3">
-                {% for step in r.steps %}
-                  <li>{{ step }}</li>
-                {% endfor %}
-              </ol>
-
-              <div class="mt-auto">
-                <form action="{{ url_for('unsave_recipe', recipe_id=r._id) }}" method="POST">
-                  <button type="submit" class="btn btn-danger w-100">
-                    Remove from Saved
-                  </button>
-                </form>
-              </div>
+{% if saved %}
+  <div class="row g-4">
+    {% for r in saved %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <img
+            src="{{ url_for('static', filename='images/cuisines/' ~ r.cuisine ~ '.jpg') }}"
+            class="card-img-top" alt="{{ r.cuisine }}"
+          >
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ r.name }}</h5>
+            <p class="card-text text-truncate">{{ r.description }}</p>
+            <ul class="list-unstyled small mb-2">
+              <li><strong>Time:</strong> {{ r.minutes }} min</li>
+              <li><strong>Calories:</strong> {{ r.nutrition.calories }}</li>
+            </ul>
+            <div class="mt-auto d-grid gap-2">
+              <a
+                href="{{ url_for('view_recipe', recipe_id=r._id) }}"
+                class="btn btn-outline-primary"
+              >View Details</a>
+              <form
+                action="{{ url_for('unsave_recipe', recipe_id=r._id) }}"
+                method="POST"
+              >
+                <button type="submit" class="btn btn-danger">
+                  Remove from Saved
+                </button>
+              </form>
             </div>
           </div>
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p>
-      You haven’t saved any recipes yet. Go
-      <a href="{{ url_for('page1') }}">get some recommendations</a>!
-    </p>
-  {% endif %}
-
-  <div class="mt-4 text-center">
-    <a href="{{ url_for('main') }}" class="btn btn-outline-secondary">
-      ← Back to Home
-    </a>
+      </div>
+    {% endfor %}
   </div>
+{% else %}
+  <p>You haven’t saved any recipes yet. Go <a href="{{ url_for('page1') }}">get some recommendations</a>!</p>
+{% endif %}
+
+<div class="mt-4">
+  <a href="{{ url_for('main') }}" class="btn btn-outline-secondary">
+    ← Back to Home
+  </a>
 </div>
 {% endblock %}
