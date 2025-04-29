@@ -67,7 +67,7 @@ def logout():
 # protect quiz & results
 @app.before_request
 def require_login():
-    allowed = ('login','signup','static','logout')
+    allowed = ('login','sign_up','static','logout')
     if request.endpoint not in allowed and 'username' not in session:
         return redirect(url_for('login'))
 
