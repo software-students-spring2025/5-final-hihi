@@ -1,7 +1,8 @@
-from mongo_connection import RecipeDatabase
-from recipe_recommender import recommend_recipes
-from pprint import pprint
 import json
+import random
+from pprint import pprint
+from back_end.mongo_connection import RecipeDatabase, JSONEncoder
+from back_end.recipe_recommender import recommend_recipes
 
 class RecipeRecommendationSystem:
     def __init__(self):
