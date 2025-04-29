@@ -1,19 +1,41 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h3 class="mb-4">Question 1: How long do you spend preparing each meal?</h3>
+<div class="main-container">
+  <h2 class="page-title">Question 1: Dietary preferences & allergies</h2>
 
-<form method="POST">
-    <div class="form-group">
-        <select class="form-select" name="response1" required>
-            <option value="">Choose your time range...</option>
-            <option value="less_than_30" {% if response1 == 'less_than_30' %}selected{% endif %}>Less than 30 minutes</option>
-            <option value="30_to_60" {% if response1 == '30_to_60' %}selected{% endif %}>30 minutes - 1 hour</option>
-            <option value="1_to_1.5" {% if response1 == '1_to_1.5' %}selected{% endif %}>1 hour - 1.5 hours</option>
-            <option value="1.5_to_2" {% if response1 == '1.5_to_2' %}selected{% endif %}>1.5 hours - 2 hours</option>
-            <option value="over_2" {% if response1 == 'over_2' %}selected{% endif %}>More than 2 hours</option>
-        </select>
+  <form method="POST">
+    <div class="d-grid gap-3">
+      {% set opts = [
+        ('vegetarian','Vegetarian'),
+        ('vegan','Vegan'),
+        ('gluten_free','Gluten-Free'),
+        ('kosher','Kosher'),
+        ('lactose_free','Lactose-Free'),
+        ('eggs_dairy','Eggs & Dairy Allergy'),
+        ('seafood','Seafood Allergy'),
+        ('nuts','Nut Allergy'),
+        ('no_restriction','No Preference')
+      ] %}
+      {% for val,label in opts %}
+        <input 
+          type="checkbox"
+          class="btn-check"
+          name="response1"
+          id="r1_{{ loop.index }}"
+          value="{{ val }}"
+          autocomplete="off"
+          {% if val in response1 %}checked{% endif %}
+        >
+        <label class="btn btn-outline-primary btn-lg" for="r1_{{ loop.index }}">
+          {{ label }}
+        </label>
+      {% endfor %}
     </div>
-    <button type="submit" class="btn btn-primary mt-3">Next</button>
-</form>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('login') }}" class="btn btn-secondary">← Back</a>
+      <button type="submit" class="btn btn-primary">Next →</button>
+    </div>
+  </form>
+</div>
 {% endblock %}
