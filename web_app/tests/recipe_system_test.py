@@ -120,3 +120,60 @@ def test_export_recommendations(tmpdir):
         content = f.read()
         assert 'Test Breakfast' in content
         assert 'eggs' in content
+
+def test_get_recommendations_not_connected(capsys):
+    system = RecipeRecommendationSystem()
+    system.connected = False  # Force disconnected state
+    results = system.get_recommendations(user_preferences={})
+
+    captured = capsys.readouterr()
+    assert results == {}
+    assert "Error: Not connected to database" in captured.out
+
+def test_display_recommendations_skips_empty(capsys):
+    system = RecipeRecommendationSystem()
+    system.connected = True  # Avoid connection check
+
+    recommendations = {
+        "breakfast": [],
+        "lunch": [{"name": "Grilled Cheese", "minutes": 10, "nutrition": {"calories": 300}, "ingredients": ["bread", "cheese"], "tags": ["easy", "main-dish"]}]
+    }
+
+    system.display_recommendations(recommendations)
+    output = capsys.readouterr().out
+
+    assert "BREAKFAST RECOMMENDATIONS" not in output
+    assert "LUNCH RECOMMENDATIONS" in output
+    assert "Grilled Cheese" in output
+
+def test_search_by_tags_returns_expected_results():
+    system = RecipeRecommendationSystem()
+    system.db = type('', (), {})()  # Dummy object
+
+    # Mock the method
+    def mock_find_recipes_by_tags(tags, limit):
+        return [{"name": "Avocado Toast", "tags": tags}]
+    system.db.find_recipes_by_tags = mock_find_recipes_by_tags
+
+    tags = ['breakfast']
+    results = system.search_by_tags(tags)
+
+    assert isinstance(results, list)
+    assert results[0]['name'] == 'Avocado Toast'
+    assert tags[0] in results[0]['tags']
+
+def test_search_by_ingredients_returns_expected_results():
+    system = RecipeRecommendationSystem()
+    system.db = type('', (), {})()  # Dummy object
+
+    def mock_find_recipes_by_ingredients(ingredients, limit):
+        return [{"name": "Egg Sandwich", "ingredients": ingredients}]
+    
+    system.db.find_recipes_by_ingredients = mock_find_recipes_by_ingredients
+
+    ingredients = ['egg']
+    results = system.search_by_ingredients(ingredients)
+
+    assert isinstance(results, list)
+    assert results[0]['name'] == 'Egg Sandwich'
+    assert ingredients[0] in results[0]['ingredients']
