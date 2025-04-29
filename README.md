@@ -30,6 +30,25 @@ Database: [hihi_recipe database docker image](https://hub.docker.com/r/yz9910/mo
 ## Application Deployment
 The application is deployed and accessible at: [https://recipe-search-app-8umjs.ondigitalocean.app/login](https://recipe-search-app-8umjs.ondigitalocean.app/login)
 
+## Application in Docker
+1. Clone the repository
+2. Nevigate into the project folder
+```
+cd 5-final-hihi
+```
+3. Build the Docker containers
+```
+docker-compose build
+```
+4. Start the Application
+```
+docker-compose up
+```
+5. Open your browser
+```
+http://127.0.0.1:5001
+```
+
 ---
 
 ## References 📎
