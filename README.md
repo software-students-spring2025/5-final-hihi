@@ -1,10 +1,7 @@
-# Final Project
-
-An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
+# HiHi Recipe 
 
 ![CI/CD](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/cicd.yaml/badge.svg)
 
-# HiHi Recipe 
 ---
 
 ## Team Members ✏️
@@ -21,16 +18,17 @@ Hihi Recipe empowers users to take control of their health and eating habits by 
 
 ---
 
-## Docker Images 📌
+## Docker Images 🐳
 
 Web Application: [hihi_recipe web-app docker image](https://hub.docker.com/r/yz9910/web_app)
 
 Database: [hihi_recipe database docker image](https://hub.docker.com/r/yz9910/mongo)
 
-## Application Deployment
+
+## Application Deployment 🔗
 The application is deployed and accessible at: [https://recipe-search-app-8umjs.ondigitalocean.app/login](https://recipe-search-app-8umjs.ondigitalocean.app/login)
 
-## Application in Docker
+## Application in Docker ⚙️
 1. Clone the repository
 2. Nevigate into the project folder
 ```
