@@ -1,70 +1,99 @@
 import pytest
-import os
 import sys
-from pymongo import MongoClient
+from unittest.mock import MagicMock
 
-# Add pytest configuration here to ensure proper imports for all tests
-pytest_plugins = []
+# This file contains fixtures and configuration for pytest
 
-def seed_test_database():
-    """Create test data in MongoDB for testing"""
-    try:
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['recipe_database']
+def pytest_configure(config):
+    """
+    Called at the start of the testing session.
+    Setup any global test configurations here.
+    """
+    # Set up environment variables or other configurations
+    pass
+
+@pytest.fixture
+def mock_db():
+    """Fixture for a mock database"""
+    class MockCollection:
+        def __init__(self):
+            self.data = [{
+                "_id": "123",
+                "name": "Test Recipe",
+                "minutes": 30,
+                "ingredients": ["ingredient1", "ingredient2"],
+                "nutrition": {"calories": 100},
+                "tags": ["breakfast", "easy"]
+            }]
         
-        # Only seed if the DB is empty (avoid duplicates during test runs)
-        if db['recipes'].count_documents({}) == 0:
-            # Add test recipes
-            db['recipes'].insert_many([
-                {
-                    'name': 'Test Recipe 1',
-                    'minutes': 30,
-                    'tags': ['breakfast', 'main-dish', 'easy'],
-                    'nutrition': {'calories': 300},
-                    'ingredients': ['eggs', 'milk', 'flour'],
-                    'steps': ['mix', 'cook', 'serve'],
-                    'description': 'A test breakfast recipe'
-                },
-                {
-                    'name': 'Test Recipe 2',
-                    'minutes': 60,
-                    'tags': ['lunch', 'dinner', 'main-dish', 'vegetarian'],
-                    'nutrition': {'calories': 500},
-                    'ingredients': ['pasta', 'tomato', 'cheese'],
-                    'steps': ['boil pasta', 'make sauce', 'combine', 'serve'],
-                    'description': 'A test dinner recipe'
-                },
-                {
-                    'name': 'Test Recipe 3',
-                    'minutes': 15,
-                    'tags': ['breakfast', 'easy', 'beginner-cook'],
-                    'nutrition': {'calories': 200},
-                    'ingredients': ['bread', 'avocado', 'salt'],
-                    'steps': ['toast bread', 'mash avocado', 'combine', 'add salt'],
-                    'description': 'A quick breakfast recipe'
-                },
-                {
-                    'name': 'Test Recipe 4',
-                    'minutes': 45,
-                    'tags': ['dinner', 'side-dishes', 'vegetarian'],
-                    'nutrition': {'calories': 300},
-                    'ingredients': ['potatoes', 'olive oil', 'rosemary', 'salt'],
-                    'steps': ['cut potatoes', 'season', 'roast'],
-                    'description': 'A side dish recipe'
-                }
-            ])
+        def find_one(self, query=None):
+            return self.data[0]
+        
+        def find(self, query=None):
+            class Cursor:
+                def __init__(self, data):
+                    self.data = data
+                
+                def limit(self, n):
+                    return self
+                
+                def __iter__(self):
+                    return iter(self.data)
             
-            # Add test users
-            if db['user_information'].count_documents({}) == 0:
-                db['user_information'].insert_one({
-                    'username': 'testuser',
-                    'password': 'password'
-                })
-        
-        return True
-    except Exception as e:
-        print(f"Error seeding database: {e}")
-        return False
+            return Cursor(self.data)
+    
+    return MockCollection()
 
-# Seed the database before tests run
-seed_test_database()
+@pytest.fixture
+def mock_flask_app():
+    """Fixture for a mock Flask app"""
+    class MockApp:
+        def __init__(self):
+            self.routes = {}
+            self.before_request_funcs = []
+            self.secret_key = "test_key"
+
+        def route(self, rule, **options):
+            def decorator(f):
+                self.routes[rule] = f
+                return f
+            return decorator
+
+        def before_request(self, f):
+            self.before_request_funcs.append(f)
+            return f
+            
+    return MockApp()
+
+@pytest.fixture
+def mock_flask_request():
+    """Fixture for a mock Flask request"""
+    class MockRequest:
+        def __init__(self):
+            self.method = "GET"
+            self.form = {}
+            self.endpoint = "main"
+    
+    return MockRequest()
+
+@pytest.fixture
+def mock_recipe_system():
+    """Fixture for a mock recipe system"""
+    class MockSystem:
+        def __init__(self):
+            self.connected = True
+            self.db = MagicMock()
+        
+        def get_recommendations(self, preferences):
+            return {
+                'breakfast': [{
+                    "_id": "123", 
+                    "name": "Test Breakfast", 
+                    "minutes": 15,
+                    "nutrition": {"calories": 200},
+                    "ingredients": ["eggs", "bread"],
+                    "tags": ["breakfast", "easy"]
+                }]
+            }
+    
+    return MockSystem()
