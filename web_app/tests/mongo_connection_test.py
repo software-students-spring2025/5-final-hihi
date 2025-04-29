@@ -187,3 +187,12 @@ def test_json_encoder():
     json_str = json.dumps(data, cls=JSONEncoder)
     assert json_str is not None
     assert str(obj_id) in json_str
+
+def test_json_encoder_fallback_to_super():
+    class UnserializableObject:
+        pass
+
+    obj = {"custom": UnserializableObject()}
+
+    with pytest.raises(TypeError):
+        json.dumps(obj, cls=JSONEncoder)
