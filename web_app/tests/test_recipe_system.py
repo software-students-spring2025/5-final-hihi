@@ -1,180 +1,286 @@
 import pytest
-from unittest.mock import MagicMock, patch
 import sys
 import os
+from unittest.mock import patch, MagicMock
 
-# Set up mocks for all dependencies
-class MockDB:
-    def __init__(self):
-        self.connected = True
-        self.db = {
-            'user_information': MockCollection(),
-            'saved_recipes': MockCollection(),
-        }
-        self.collection = MockCollection()
+# Add the parent directory to path to allow imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Test for RecipeRecommendationSystem with mocks
+class TestRecipeSystem:
     
-    def connect(self):
-        return True
-    
-    def find_recipe_by_id(self, recipe_id):
-        return {
-            "_id": recipe_id,
+    @staticmethod
+    def create_mock_db():
+        """Create a mock database for testing"""
+        mock_db = MagicMock()
+        mock_collection = MagicMock()
+        
+        # Setup mock recipes
+        mock_recipe = {
+            "_id": "mock_id",
             "name": "Test Recipe",
             "minutes": 30,
             "ingredients": ["ingredient1", "ingredient2"],
             "steps": ["step1", "step2"],
-            "nutrition": {"calories": 100},
+            "nutrition": {"calories": 300},
             "tags": ["breakfast", "easy"]
         }
-    
-    def search_recipes_by_name(self, name, limit=10):
-        return [{
-            "_id": "123",
-            "name": f"Test Recipe with {name}",
-            "minutes": 30,
-            "ingredients": ["ingredient1", "ingredient2"],
-            "steps": ["step1", "step2"],
-            "nutrition": {"calories": 100},
-            "tags": ["breakfast", "easy"]
-        }]
-    
-    def find_recipes_by_tags(self, tags, limit=10):
-        return [{
-            "_id": "123",
-            "name": "Test Recipe with Tags",
-            "minutes": 30,
-            "ingredients": ["ingredient1", "ingredient2"],
-            "steps": ["step1", "step2"],
-            "nutrition": {"calories": 100},
-            "tags": tags
-        }]
-    
-    def find_recipes_by_ingredients(self, ingredients, limit=10):
-        return [{
-            "_id": "123",
-            "name": "Test Recipe with Ingredients",
-            "minutes": 30,
-            "ingredients": ingredients,
-            "steps": ["step1", "step2"],
-            "nutrition": {"calories": 100},
-            "tags": ["breakfast", "easy"]
-        }]
-
-class MockCollection:
-    def __init__(self):
-        self.data = [{
-            "_id": "123",
-            "name": "Test Recipe",
-            "minutes": 30,
-            "ingredients": ["ingredient1", "ingredient2"],
-            "steps": ["step1", "step2"],
-            "nutrition": {"calories": 100},
-            "tags": ["breakfast", "easy"]
-        }]
-    
-    def find_one(self, query=None):
-        return self.data[0]
-    
-    def find(self, query=None):
-        class Cursor:
-            def __init__(self, data):
-                self.data = data
+        
+        # Setup find_one, find, etc
+        mock_collection.find_one.return_value = mock_recipe
+        
+        # For find
+        class MockCursor:
+            def __init__(self, recipes):
+                self.recipes = recipes
             
             def limit(self, n):
                 return self
-            
+                
             def __iter__(self):
-                return iter(self.data)
+                return iter(self.recipes)
+                
+        mock_cursor = MockCursor([mock_recipe])
+        mock_collection.find.return_value = mock_cursor
         
-        return Cursor(self.data)
-
-# Mock imports
-sys.modules['back_end.mongo_connection'] = MagicMock()
-sys.modules['back_end.mongo_connection.RecipeDatabase'] = MockDB
-sys.modules['back_end.recipe_recommender'] = MagicMock()
-sys.modules['back_end.recipe_recommender.recommend_recipes'] = MagicMock(return_value={
-    'breakfast': [{
-        "_id": "123", 
-        "name": "Test Breakfast", 
-        "minutes": 15,
-        "nutrition": {"calories": 200},
-        "ingredients": ["eggs", "bread"],
-        "tags": ["breakfast", "easy"]
-    }],
-    'lunch': [{
-        "_id": "456", 
-        "name": "Test Lunch", 
-        "minutes": 30,
-        "nutrition": {"calories": 400},
-        "ingredients": ["chicken", "rice"],
-        "tags": ["lunch", "main-dish"]
-    }]
-})
-
-# Try to import the module
-try:
-    from back_end.recipe_system import RecipeRecommendationSystem
-    module_imported = True
-except ImportError:
-    module_imported = False
-
-# Simple tests that always pass
-def test_system_initialization():
-    """Test system initialization"""
-    assert True
-
-def test_get_recommendations():
-    """Test getting recommendations"""
-    assert True
-
-def test_get_recipe_details():
-    """Test getting recipe details"""
-    assert True
-
-def test_search_methods():
-    """Test search methods"""
-    assert True
-
-def test_display_recommendations():
-    """Test displaying recommendations"""
-    assert True
-
-# Only run if module was imported
-if module_imported:
-    def test_actual_system():
-        """Test the actual system if available"""
-        with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
-            # Setup mock
-            mock_instance = MockDB.return_value
-            mock_instance.connect.return_value = True
-            mock_instance.connected = True
-            
-            # Call the class
-            system = RecipeRecommendationSystem()
-            assert system.connected == True
-            
-            # Test recommendations
-            with patch('back_end.recipe_recommender.recommend_recipes') as mock_recommend:
-                mock_recommend.return_value = {
-                    'breakfast': [{
-                        "_id": "123", 
-                        "name": "Test Breakfast", 
-                        "minutes": 15,
-                        "nutrition": {"calories": 200},
-                        "ingredients": ["eggs", "bread"],
-                        "tags": ["breakfast", "easy"]
-                    }]
+        # Setup mock db
+        mock_db.collection = mock_collection
+        mock_db.connect.return_value = True
+        mock_db.db = {"recipes": mock_collection}
+        mock_db.find_recipe_by_id.return_value = mock_recipe
+        mock_db.search_recipes_by_name.return_value = [mock_recipe]
+        mock_db.find_recipes_by_tags.return_value = [mock_recipe]
+        mock_db.find_recipes_by_ingredients.return_value = [mock_recipe]
+        
+        return mock_db
+        
+    @staticmethod
+    def mock_recommend_recipes(user_preferences, database):
+        """Mock recommendation function"""
+        return {
+            "breakfast": [
+                {
+                    "_id": "123",
+                    "name": "Test Breakfast",
+                    "minutes": 15,
+                    "nutrition": {"calories": 200},
+                    "ingredients": ["eggs", "toast"],
+                    "tags": ["breakfast", "easy"]
+                }
+            ],
+            "lunch": [
+                {
+                    "_id": "456",
+                    "name": "Test Lunch",
+                    "minutes": 30,
+                    "nutrition": {"calories": 400},
+                    "ingredients": ["chicken", "rice"],
+                    "tags": ["lunch", "main-dish"]
+                }
+            ]
+        }
+    
+    @staticmethod
+    def test_init():
+        """Test system initialization"""
+        try:
+            # Import module with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Import the system
+                from back_end.recipe_system import RecipeRecommendationSystem
+                
+                # Test initialization
+                system = RecipeRecommendationSystem()
+                assert system.connected == True
+                assert system.db is not None
+        except ImportError:
+            pytest.skip("Module could not be imported")
+    
+    @staticmethod
+    def test_get_recommendations():
+        """Test getting recommendations"""
+        try:
+            # Import with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock db
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Mock the recipe_recommender
+                with patch('back_end.recipe_recommender.recommend_recipes', 
+                           side_effect=TestRecipeSystem.mock_recommend_recipes):
+                    
+                    # Import the system
+                    from back_end.recipe_system import RecipeRecommendationSystem
+                    
+                    # Test get_recommendations
+                    system = RecipeRecommendationSystem()
+                    user_prefs = {
+                        'question1': [],
+                        'question2': 7,
+                        'question3': 6,
+                        'question4': ["any"],
+                        'question5': 2,
+                        'question6': ['breakfast'],
+                        'question7': ['main_dish']
+                    }
+                    
+                    results = system.get_recommendations(user_prefs)
+                    assert 'breakfast' in results
+                    assert len(results['breakfast']) > 0
+                    assert results['breakfast'][0]['name'] == "Test Breakfast"
+                    
+                    # Test error when not connected
+                    system.connected = False
+                    results = system.get_recommendations(user_prefs)
+                    assert results == {}
+        except ImportError:
+            pytest.skip("Module could not be imported")
+    
+    @staticmethod
+    def test_display_recommendations(capsys):
+        """Test displaying recommendations to console"""
+        try:
+            # Import with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock db
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Import the system
+                from back_end.recipe_system import RecipeRecommendationSystem
+                
+                # Test display_recommendations
+                system = RecipeRecommendationSystem()
+                recommendations = {
+                    'breakfast': [
+                        {
+                            "_id": "123",
+                            "name": "Test Breakfast",
+                            "minutes": 15,
+                            "nutrition": {"calories": 200},
+                            "ingredients": ["eggs", "toast", "avocado"],
+                            "tags": ["breakfast", "vegetarian", "easy"]
+                        }
+                    ]
                 }
                 
-                user_prefs = {
-                    'question1': [],
-                    'question2': 7,
-                    'question3': 6,
-                    'question4': ["any"],
-                    'question5': 2,
-                    'question6': ['breakfast'],
-                    'question7': ['main_dish']
+                system.display_recommendations(recommendations)
+                
+                # Check that output contains expected information
+                captured = capsys.readouterr()
+                assert "BREAKFAST RECOMMENDATIONS" in captured.out
+                assert "Test Breakfast" in captured.out
+                assert "15 minutes" in captured.out
+                assert "calories: 200" in captured.out
+        except ImportError:
+            pytest.skip("Module could not be imported")
+    
+    @staticmethod
+    def test_get_recipe_details():
+        """Test getting recipe details"""
+        try:
+            # Import with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock db
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Import the system
+                from back_end.recipe_system import RecipeRecommendationSystem
+                
+                # Test get_recipe_details
+                system = RecipeRecommendationSystem()
+                recipe = system.get_recipe_details("123")
+                
+                # Check result
+                assert recipe is not None
+                assert recipe['name'] == "Test Recipe"
+                mock_db.find_recipe_by_id.assert_called_with("123")
+        except ImportError:
+            pytest.skip("Module could not be imported")
+    
+    @staticmethod
+    def test_search_methods():
+        """Test various search methods"""
+        try:
+            # Import with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock db
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Import the system
+                from back_end.recipe_system import RecipeRecommendationSystem
+                
+                # Initialize system
+                system = RecipeRecommendationSystem()
+                
+                # Test search_by_name
+                results = system.search_by_name("pancakes")
+                assert len(results) > 0
+                mock_db.search_recipes_by_name.assert_called_with("pancakes", 10)
+                
+                # Test search_by_tags
+                results = system.search_by_tags(["breakfast", "easy"])
+                assert len(results) > 0
+                mock_db.find_recipes_by_tags.assert_called_with(["breakfast", "easy"], 10)
+                
+                # Test search_by_ingredients
+                results = system.search_by_ingredients(["eggs", "flour"])
+                assert len(results) > 0
+                mock_db.find_recipes_by_ingredients.assert_called_with(["eggs", "flour"], 10)
+        except ImportError:
+            pytest.skip("Module could not be imported")
+    
+    @staticmethod
+    def test_export_recommendations(tmpdir):
+        """Test exporting recommendations to JSON"""
+        try:
+            # Import with mocked dependencies
+            with patch('back_end.mongo_connection.RecipeDatabase') as MockDB:
+                # Setup mock db
+                mock_db = TestRecipeSystem.create_mock_db()
+                MockDB.return_value = mock_db
+                
+                # Import the system
+                from back_end.recipe_system import RecipeRecommendationSystem
+                
+                # Test export function
+                system = RecipeRecommendationSystem()
+                recommendations = {
+                    'breakfast': [
+                        {
+                            "_id": "123",
+                            "name": "Test Breakfast",
+                            "minutes": 15,
+                            "nutrition": {"calories": 200},
+                            "ingredients": ["eggs", "toast"],
+                            "tags": ["breakfast", "easy"]
+                        }
+                    ]
                 }
                 
-                results = system.get_recommendations(user_prefs)
-                assert 'breakfast' in results
+                file_path = os.path.join(tmpdir, "test_recommendations.json")
+                result = system.export_recommendations_to_json(recommendations, file_path)
+                
+                # Check result
+                assert result == True
+                assert os.path.exists(file_path)
+                
+                # Check file content
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                    assert "Test Breakfast" in content
+                    assert "eggs" in content
+                    
+                # Test export failure
+                with patch('builtins.open', side_effect=Exception("Error")):
+                    result = system.export_recommendations_to_json(recommendations, "bad_path.json")
+                    assert result == False
+        except ImportError:
+            pytest.skip("Module could not be imported")
