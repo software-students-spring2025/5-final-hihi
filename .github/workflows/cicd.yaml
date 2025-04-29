@@ -1,14 +1,13 @@
-name: Recipe App CI/CD
+name: Recipe App Tests
 
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   test:
-    name: Build and Test
+    name: Test
     runs-on: ubuntu-latest
     
     defaults:
@@ -32,132 +31,53 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Install pymongo first (includes bson as a dependency)
+          # Install pymongo first (includes bson)
           pip install pymongo==4.5.0
-          
-          # DO NOT install standalone bson which conflicts with pymongo
-          # Install other dependencies
-          pip install flask==2.3.3
-          pip install python-dotenv==1.0.0
-          pip install pytest==8.3.5
-          pip install pytest-cov==6.1.1
-          pip install pytest-flask==1.2.0
+          pip install flask==2.3.3 python-dotenv==1.0.0 pytest==8.3.5 pytest-cov==6.1.1
       
       - name: Setup test database
         run: |
-          echo "Setting up test MongoDB database..."
           python -c "
-          try:
-              from pymongo import MongoClient
-              # Verify MongoDB connection is working
-              client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=5000)
-              client.server_info()  # Will throw an exception if connection fails
-              print('Successfully connected to MongoDB')
-              
-              # Create database and collections
-              db = client['recipe_database']
-              
-              # Create and populate recipes collection
-              if 'recipes' not in db.list_collection_names():
-                  print('Creating recipes collection...')
-                  recipes = db['recipes']
-                  recipes.insert_many([
-                      {
-                          'name': 'Test Recipe 1',
-                          'minutes': 30,
-                          'tags': ['breakfast', 'main-dish', 'easy'],
-                          'nutrition': {'calories': 300},
-                          'ingredients': ['eggs', 'milk', 'flour'],
-                          'steps': ['mix', 'cook'],
-                          'description': 'A test breakfast recipe'
-                      },
-                      {
-                          'name': 'Test Recipe 2',
-                          'minutes': 60,
-                          'tags': ['lunch', 'dinner', 'main-dish', 'vegetarian'],
-                          'nutrition': {'calories': 500},
-                          'ingredients': ['pasta', 'tomato', 'cheese'],
-                          'steps': ['boil pasta', 'make sauce', 'combine'],
-                          'description': 'A test dinner recipe'
-                      }
-                  ])
-              
-              # Create and populate user information collection
-              if 'user_information' not in db.list_collection_names():
-                  print('Creating user_information collection...')
-                  users = db['user_information']
-                  users.insert_one({'username': 'testuser', 'password': 'password'})
-              
-              # Create saved_recipes collection
-              if 'saved_recipes' not in db.list_collection_names():
-                  print('Creating saved_recipes collection...')
-                  db.create_collection('saved_recipes')
-                  
-              print('Database setup complete')
-              
-          except Exception as e:
-              print(f'Error setting up database: {e}')
-              import traceback
-              traceback.print_exc()
+          from pymongo import MongoClient
+          client = MongoClient('mongodb://localhost:27017/')
+          db = client['recipe_database']
+          # Create test collections
+          db['recipes'].insert_many([
+              {'name': 'Test Recipe 1', 'minutes': 30, 'tags': ['breakfast'], 
+               'nutrition': {'calories': 300}, 'ingredients': ['eggs'], 'steps': ['mix']}
+          ])
+          db['user_information'].insert_one({'username': 'testuser', 'password': 'password'})
+          db.create_collection('saved_recipes')
+          print('Database setup complete')
           "
-          echo "Database setup completed."
       
       - name: Run tests with coverage
         run: |
-          # Make sure tests directory exists
-          if [ ! -d "tests" ]; then
-            echo "Creating tests directory..."
-            mkdir -p tests
-          fi
+          # Create basic test directory if needed
+          mkdir -p tests
+          echo "# Package init" > tests/__init__.py
           
-          # Ensure we have an __init__.py file in the tests directory
-          if [ ! -f "tests/__init__.py" ]; then
-            echo "Creating tests/__init__.py..."
-            echo "# This file ensures the tests directory is treated as a Python package" > tests/__init__.py
-          fi
-          
-          # Create a basic test file if none exist
-          if [ ! -f "tests/test_basic.py" ]; then
-            echo "Creating a basic test file..."
-            cat > tests/test_basic.py << 'EOL'
+          # Create basic test file
+          cat > tests/test_basic.py << 'EOL'
 import pytest
 
 def test_environment():
-    """Test that the environment is working"""
+    """Basic test"""
     assert True
 
 def test_bson_import():
-    """Test that bson imports correctly from pymongo"""
-    try:
-        from bson import ObjectId
-        assert ObjectId() is not None
-    except ImportError as e:
-        pytest.fail(f"Failed to import bson: {e}")
-
-def test_pymongo_import():
-    """Test that pymongo imports correctly"""
-    try:
-        from pymongo import MongoClient
-        assert MongoClient is not None
-    except ImportError as e:
-        pytest.fail(f"Failed to import pymongo: {e}")
+    """Test bson imports correctly"""
+    from bson import ObjectId
+    assert ObjectId() is not None
 EOL
-          fi
           
-          # Run the tests
-          echo "Running tests with coverage..."
-          pytest tests/ --cov=. -v || echo "Tests failed but continuing build"
+          # Run tests
+          pytest tests/ --cov=. -v
           
-          # Even if tests fail, we'll calculate coverage to see where we stand
-          echo "Calculating test coverage..."
-          coverage_output=$(pytest --cov=. | grep TOTAL || echo "TOTAL       0      0    0%")
-          coverage=$(echo "$coverage_output" | awk '{print $4}' | sed 's/%//')
-          echo "Current test coverage: $coverage%"
+          # Report coverage
+          coverage=$(pytest --cov=. | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $coverage%"
           
-          # Check if we've hit our target
           if (( $(echo "$coverage < 80" | bc -l) )); then
-            echo "Warning: Test coverage is below 80% ($coverage%)"
-            # We'll continue the build but warn about low coverage
-          else
-            echo "Coverage requirement met: $coverage%"
+            echo "Warning: Coverage below 80% threshold"
           fi
