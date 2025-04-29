@@ -23,7 +23,14 @@
                   <li><strong>Calories:</strong> {{ r.nutrition.calories }}</li>
                 </ul>
                 <div class="mt-auto">
-                  <a href="#" class="btn btn-primary w-100">View Recipe</a>
+                  <form
+                    action="{{ url_for('save_recipe', recipe_id=r._id) }}"
+                    method="POST"
+                  >
+                    <button type="submit" class="btn btn-success w-100">
+                      Save Recipe
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -36,7 +43,12 @@
   {% endif %}
 
   <div class="mt-4 text-center">
-    <a href="{{ url_for('page1') }}" class="btn btn-outline-secondary">Start Over</a>
+    <a href="{{ url_for('main') }}" class="btn btn-outline-secondary me-2">
+      ← Back to Home
+    </a>
+    <a href="{{ url_for('saved_recipes') }}" class="btn btn-outline-info">
+      💾 View Saved Recipes
+    </a>
   </div>
 </div>
 {% endblock %}

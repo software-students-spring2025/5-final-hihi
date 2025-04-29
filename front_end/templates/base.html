@@ -1,4 +1,4 @@
-<!doctype html> 
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,13 +9,16 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('page1') }}">🍽️ Recipe Recommender</a>
-      <div class="ms-auto">
+      <a class="navbar-brand" href="{{ url_for('main') }}">🍽️ Recipe Recommender</a>
+
+      <div class="ms-auto d-flex align-items-center gap-2">
         {% if session.username %}
-          <span class="navbar-text me-3">Hi, {{ session.username }}</span>
-          <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-sm">Logout</a>
+          <a class="btn btn-outline-primary btn-sm" href="{{ url_for('main') }}">Home</a>
+          <a class="btn btn-outline-info btn-sm" href="{{ url_for('saved_recipes') }}">Saved Recipes</a>
+          <span class="navbar-text">Hi, {{ session.username }}</span>
+          <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('logout') }}">Logout</a>
         {% else %}
-          <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm">Login</a>
+          <a class="btn btn-outline-primary btn-sm" href="{{ url_for('login') }}">Login</a>
         {% endif %}
       </div>
     </div>
