@@ -1,6 +1,6 @@
 import pytest
 import mongomock
-from mongoengine import connect, disconnect, get_connection
+from mongoengine import connect, disconnect
 from web_app.back_end.model import (
     UserInformation, CookMode, MealType, AllergyPreferences,
     Cuisine, DailyPlan, Requirements, Recipe, RecipeHistory
@@ -8,12 +8,15 @@ from web_app.back_end.model import (
 
 @pytest.fixture(autouse=True)
 def mock_db():
+    disconnect(alias="default")  # Ensure no prior connection
     connect(
         db="testdb",
         alias="default",
-        host="mongodb://localhost",  # dummy URI
-        mongo_client_class=mongomock.MongoClient
+        host="mongodb://localhost",
+        mongo_client_class=mongomock.MongoClient,
+        uuidRepresentation="standard"
     )
+
     yield
     disconnect(alias="default")
 

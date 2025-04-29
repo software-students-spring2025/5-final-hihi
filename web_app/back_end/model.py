@@ -2,7 +2,7 @@ from mongoengine import Document, StringField, IntField, EmailField, MapField, B
 from datetime import datetime
 from mongoengine import connect
 
-connect('recipe', host='mongodb://localhost:27017/recipe') #name to be changed
+# connect('recipe', host='mongodb://localhost:27017/recipe') #name to be changed
 
 # User information table
 class UserInformation(Document):
