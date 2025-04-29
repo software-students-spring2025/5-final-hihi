@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="main-container">
+  <h2 class="page-title">{{ recipe.name }}</h2>
+  <img
+    src="{{ url_for('static', filename='images/cuisines/' ~ recipe.cuisine ~ '.jpg') }}"
+    class="img-fluid mb-4"
+    alt="{{ recipe.cuisine }}"
+  >
+  <p><strong>Description:</strong> {{ recipe.description }}</p>
+  <ul class="list-unstyled">
+    <li><strong>Time:</strong> {{ recipe.minutes }} min</li>
+    <li><strong>Calories:</strong> {{ recipe.nutrition.calories }}</li>
+    {% for k,v in recipe.nutrition.items() if k!='calories' %}
+      <li><strong>{{ k.replace('_',' ').title() }}:</strong> {{ v }}</li>
+    {% endfor %}
+  </ul>
+
+  <h5 class="mt-4">Ingredients</h5>
+  <ul>
+    {% for ing in recipe.ingredients %}
+      <li>{{ ing }}</li>
+    {% endfor %}
+  </ul>
+
+  <h5 class="mt-4">Steps</h5>
+  <ol>
+    {% for step in recipe.steps %}
+      <li>{{ step }}</li>
+    {% endfor %}
+  </ol>
+
+  <div class="mt-4">
+    <a href="{{ request.referrer or url_for('main') }}" class="btn btn-outline-secondary">
+      ← Back
+    </a>
+  </div>
+</div>
+{% endblock %}
