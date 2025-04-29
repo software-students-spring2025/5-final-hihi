@@ -1,52 +1,60 @@
 import os
 import sys
-import json
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
-import pymongo
+from flask import (
+    Flask, render_template, request,
+    session, redirect, url_for, flash
+)
 
-# ── allow imports from the sibling back_end folder ──
+# ── import back_end packages ──
 sys.path.insert(
     0,
     os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..')
     )
 )
-from back_end import MongoDBConnection as db
 
+# use RecipeDatabase abstraction
+from back_end.mongo_connection import RecipeDatabase
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET", "change_me")
 
-# grab your user_information collection
-user_coll = db.client['recipe_database']['user_information']
+# initialize and connect once at startup
+db = RecipeDatabase()
+if not db.connect():
+    raise RuntimeError("Failed to connect to MongoDB Atlas!")
+
+# authentication collection
+user_coll = db.db['user_information']
 
 
 # -------- LOGIN ROUTE --------
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password']
-        user = user_coll.find_one({"username": username})
-        if user and user.get('password') == password:
-            session['username'] = username
+        u = request.form['username'].strip()
+        p = request.form['password']
+        user = user_coll.find_one({"username": u})
+        if user and user.get('password') == p:
+            session['username'] = u
             flash("Logged in successfully.", "success")
             return redirect(url_for('page1'))
         else:
             flash("Invalid username or password", "danger")
     return render_template('login.html')
 
+
 # -------- SIGNUP ROUTE --------
 @app.route('/signup', methods=['GET','POST'])
 def sign_up():
     if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password']
-        user = {"username": username, "password": password}
-        user = db.client['recipe_database']['user_information'].insert_one(user)
-        session['username'] = username
+        u = request.form['username'].strip()
+        p = request.form['password']
+        user_coll.insert_one({"username": u, "password": p})
+        session['username'] = u
         return redirect(url_for('page1'))
     return render_template('signup.html')
+
 
 # -------- LOGOUT ROUTE --------
 @app.route('/logout')
@@ -56,15 +64,15 @@ def logout():
     return redirect(url_for('login'))
 
 
-# protect all quiz & results pages
+# protect quiz & results
 @app.before_request
 def require_login():
-    allowed = ('login','static','logout')
+    allowed = ('login','signup','static','logout')
     if request.endpoint not in allowed and 'username' not in session:
         return redirect(url_for('login'))
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def home():
     return redirect(url_for('page1'))
 
@@ -74,7 +82,7 @@ def page1():
     if request.method == 'POST':
         session['response1'] = request.form['response1']
         return redirect(url_for('page2'))
-    return render_template("page1.html", response1=session.get('response1',''))
+    return render_template('page1.html', response1=session.get('response1',''))
 
 
 @app.route('/page2', methods=['GET', 'POST'])
@@ -99,11 +107,10 @@ def page3():
 
 @app.route('/results')
 def results():
-    recipes = db.collection.find(
-        {"cuisine": session.get('selected_cuisine', 'asian')}
-    ).limit(10)
-    recipes_list = list(recipes)
-    return render_template('results.html', recipes=recipes_list)
+    # TODO: translate session answers into a real Mongo query
+    # For now we’ll just fetch a sample of 10 recipes:
+    recipes = db.get_sample_recipes(count=10)
+    return render_template('results.html', recipes=recipes)
 
 
 if __name__ == "__main__":
