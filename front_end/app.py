@@ -152,6 +152,7 @@ def results():
         'question7': session.get('response7', [])
     }
 
+    # print(user_preferences)
     from back_end.recipe_system import RecipeRecommendationSystem
     rec_sys = RecipeRecommendationSystem()
     if not rec_sys.connected:
@@ -159,6 +160,7 @@ def results():
         recipes = []
     else:
         recipes = rec_sys.get_recommendations(user_preferences)
+        # print(recipes)
 
     return render_template(
         'results.html',

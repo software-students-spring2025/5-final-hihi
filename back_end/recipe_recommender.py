@@ -55,32 +55,43 @@ def recommend_recipes(user_preferences, database):
     }
 
     # Process preferences
+    print("Diet Selection: ", diet_selections)
     for selection in diet_selections:
-        if selection in [1, 2, 3, 4, 5]:
-            tags = ['vegetarian', 'vegan', 'gluten-free', 'kosher', 'lactose-free']
-            diet_tags_to_include.append(tags[selection - 1])
-        elif selection == 7:
+        if selection in ['vegetarian', 'vegan', 'gluten-free', 'kosher', 'lactose-free']:
+            diet_tags_to_include.append(selection)
+        elif selection == 'eggs_dairy':
             allergy_tags_to_exclude.append('eggs_dairy')
-        elif selection == 8:
+        elif selection == 'seafood':
             allergy_tags_to_exclude.append('seafood')
-        elif selection == 9:
+        elif selection == 'nuts':
             allergy_tags_to_exclude.append('nuts')
+    print("Diet: ", allergy_tags_to_exclude)
 
+    print("Cuisine Selections: ", cuisine_selections)
     for selection in cuisine_selections:
-        if selection != 15 and selection in cuisine_mapping:
-            cuisine_tags.append(cuisine_mapping[selection])
+        if selection != "any":
+            cuisine_tags.append(selection)
+    print("Cuisine: ", cuisine_tags)
 
-    for selection in meal_type_selections:
-        if selection in meal_mapping:
-            meal_types.append(meal_mapping[selection])
+    """ print(meal_type_selections)
+    #meal_mapping_reverse = {v: k for k, v in meal_mapping.items()}
+    meal_types = [meal_mapping.get(sel) for sel in meal_type_selections]
+    if None in meal_types:
+        meal_types = None """
+
+    meal_types = meal_type_selections
+    # print(meal_types)
     
     # If no meal types selected, default to all
     if not meal_types:
         meal_types = ['breakfast', 'lunch', 'dinner']
 
-    for selection in dish_type_selections:
+    print("Dish Selections: ", dish_type_selections)
+    """ for selection in dish_type_selections:
         if selection in dish_mapping:
-            dish_types.append(dish_mapping[selection])
+            dish_types.append(dish_mapping[selection]) """
+    dish_types = dish_type_selections
+    print("Dish: ", dish_types)
     
     # If no dish types selected, default to main dish
     if not dish_types:
@@ -91,6 +102,7 @@ def recommend_recipes(user_preferences, database):
     dish_calorie_ranges = {meal: {} for meal in meal_types}
     
     # Calculate meal and dish calorie allocations
+    calorie_option = int(calorie_option)
     if calorie_option != 7:
         daily_min_calories, daily_max_calories = calorie_ranges[calorie_option]
     else:
@@ -126,7 +138,7 @@ def recommend_recipes(user_preferences, database):
     # Initialize recommendations container
     recommendations = {meal: [] for meal in meal_types}
     used_recipe_ids = set()
-    
+    # print(recommendations)
     # Build the query
     for meal in meal_types:                           # ───── MEAL LOOP ─────
         # ───────────────────────────── BREAKFAST / BRUNCH ─────────────────────────────
@@ -147,6 +159,7 @@ def recommend_recipes(user_preferences, database):
             query_parts.append({"tags": {"$in": [meal]}})
 
             # ❸ time
+            time_option = int(time_option)
             if time_option != 6:
                 min_t, max_t = time_ranges[time_option]
                 if max_t == float('inf'):
@@ -237,6 +250,7 @@ def recommend_recipes(user_preferences, database):
                 query_parts.append({"tags": dish_type})
 
                 # ❸ time
+                time_option = int(time_option)
                 if time_option != 6:
                     min_t, max_t = time_ranges[time_option]
                     if max_t == float('inf'):
@@ -254,6 +268,7 @@ def recommend_recipes(user_preferences, database):
 
                 # ❻ calories
                 has_calorie = False
+                calorie_option = int(calorie_option)
                 if calorie_option != 7 and dish_type in dish_calorie_ranges.get(meal, {}):
                     cmin, cmax = dish_calorie_ranges[meal][dish_type]
                     query_parts.append({"nutrition.calories": {"$gte": cmin, "$lte": cmax}})
