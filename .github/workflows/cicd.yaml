@@ -1,0 +1,80 @@
+name: Recipe App CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: web_app
+    
+    services:
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install -r requirements.txt
+      
+      - name: Setup test database
+        run: |
+          python -c "
+          from pymongo import MongoClient
+          client = MongoClient('mongodb://localhost:27017/')
+          db = client['recipe_database']
+          # Create test recipes
+          db['recipes'].insert_many([
+            {
+              'name': 'Test Recipe 1',
+              'minutes': 30,
+              'tags': ['breakfast', 'main-dish', 'easy'],
+              'nutrition': {'calories': 300},
+              'ingredients': ['eggs', 'milk', 'flour'],
+              'steps': ['mix', 'cook']
+            },
+            {
+              'name': 'Test Recipe 2',
+              'minutes': 60,
+              'tags': ['lunch', 'dinner', 'main-dish', 'vegetarian'],
+              'nutrition': {'calories': 500},
+              'ingredients': ['pasta', 'tomato', 'cheese'],
+              'steps': ['boil pasta', 'make sauce', 'combine']
+            }
+          ])
+          # Create test user
+          db['user_information'].insert_one({'username': 'testuser', 'password': 'password'})
+          # Create saved_recipes collection
+          db['saved_recipes']
+          "
+      
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ --cov=. --cov-report=term-missing
+      
+      - name: Enforce 80% test coverage
+        run: |
+          coverage=$(pytest --cov=. | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $coverage%"
+          if (( $(echo "$coverage < 80" | bc -l) )); then
+            echo "Error: Test coverage below 80%" >&2
+            exit 1
+          fi
