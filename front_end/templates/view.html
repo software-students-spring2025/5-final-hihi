@@ -1,39 +1,56 @@
+{# templates/view.html #}
 {% extends "base.html" %}
+
 {% block content %}
-<div class="main-container">
-  <h2 class="page-title">{{ recipe.name }}</h2>
-  <img
-    src="{{ url_for('static', filename='images/cuisines/' ~ recipe.cuisine ~ '.jpg') }}"
-    class="img-fluid mb-4"
-    alt="{{ recipe.cuisine }}"
-  >
-  <p><strong>Description:</strong> {{ recipe.description }}</p>
-  <ul class="list-unstyled">
-    <li><strong>Time:</strong> {{ recipe.minutes }} min</li>
-    <li><strong>Calories:</strong> {{ recipe.nutrition.calories }}</li>
-    {% for k,v in recipe.nutrition.items() if k!='calories' %}
-      <li><strong>{{ k.replace('_',' ').title() }}:</strong> {{ v }}</li>
-    {% endfor %}
-  </ul>
+<!-- Define a JS constant for your “default” cuisine image -->
+<script>
+  const DEFAULT_CUISINE_IMG = "{{ url_for('static', filename='images/cuisines/default.jpg') }}";
+</script>
 
-  <h5 class="mt-4">Ingredients</h5>
-  <ul>
-    {% for ing in recipe.ingredients %}
-      <li>{{ ing }}</li>
-    {% endfor %}
-  </ul>
+<div class="container my-5">
+  <div class="card shadow-sm">
+    {# normalize the cuisine tag to a filename: lowercase & hyphens #}
+    {% set img_name = recipe.cuisine|lower|replace(' ', '-') ~ '.jpg' %}
 
-  <h5 class="mt-4">Steps</h5>
-  <ol>
-    {% for step in recipe.steps %}
-      <li>{{ step }}</li>
-    {% endfor %}
-  </ol>
+    <img
+      src="{{ url_for('static', filename='images/cuisines/' ~ img_name) }}"
+      class="card-img-top"
+      alt="{{ recipe.cuisine|title }}"
+      onerror="this.onerror=null; this.src=DEFAULT_CUISINE_IMG;"
+    >
 
-  <div class="mt-4">
-    <a href="{{ request.referrer or url_for('main') }}" class="btn btn-outline-secondary">
-      ← Back
-    </a>
+    <div class="card-body">
+      <h2 class="card-title">{{ recipe.name }}</h2>
+      <p class="text-muted">{{ recipe.description }}</p>
+
+      <ul class="list-inline mb-3">
+        <li class="list-inline-item"><strong>⏱</strong> {{ recipe.minutes }} min</li>
+        <li class="list-inline-item"><strong>🔥</strong> {{ recipe.nutrition.calories }} cal</li>
+        {% for key, val in recipe.nutrition.items() if key != 'calories' %}
+          <li class="list-inline-item">
+            <strong>{{ key.replace('_',' ').title() }}:</strong> {{ val }}
+          </li>
+        {% endfor %}
+      </ul>
+
+      <h5>🥗 Ingredients</h5>
+      <ul>
+        {% for ing in recipe.ingredients %}
+          <li>{{ ing }}</li>
+        {% endfor %}
+      </ul>
+
+      <h5 class="mt-4">👩‍🍳 Steps</h5>
+      <ol>
+        {% for step in recipe.steps %}
+          <li>{{ step }}</li>
+        {% endfor %}
+      </ol>
+
+      <a href="{{ request.referrer or url_for('main') }}" class="btn btn-outline-secondary mt-4">
+        ← Back
+      </a>
+    </div>
   </div>
 </div>
 {% endblock %}
