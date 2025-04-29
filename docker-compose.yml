@@ -1,0 +1,22 @@
+services:
+  web_app:
+    build: ./web_app
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_SECRET=change_me
+      - MONGO_URI=mongodb+srv://test_user:IQ2he1ZHq3mkLJNX@cluster0.cogqyqp.mongodb.net/
+    depends_on:
+      - mongo
+    restart: always
+
+  mongo:
+    build: ./mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+volumes:
+  mongo_data:
