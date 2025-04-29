@@ -2,8 +2,7 @@
 
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
-![Back End CI](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/back_end.yml/badge.svg)
-![Front End CI](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/front_end.yml/badge.svg)
+![Back End CI](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/cicd.yml/badge.svg)
 
 # HiHi Recipe 
 ---
