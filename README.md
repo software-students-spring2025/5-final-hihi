@@ -2,8 +2,7 @@
 
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
-![Back End CI](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/back_end.yml/badge.svg)
-![Front End CI](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/front_end.yml/badge.svg)
+![CI/CD](https://github.com/software-students-spring2025/5-final-hihi/actions/workflows/cicd.yaml/badge.svg)
 
 # HiHi Recipe 
 ---
@@ -22,14 +21,11 @@ HiHi recipe is a containerized web application that allows users to record audio
 
 ---
 
-## Setup Instructions 📌
+## Docker Images 📌
 
-### 1. Clone the Repository
+Web Application: [hihi_recipe web-app docker image](https://hub.docker.com/r/yz9910/web_app)
 
-```bash
-git clone https://github.com/software-students-spring2025/5-final-hihi.git
-cd 5-final-hihi
-```
+Database: [hihi_recipe database docker image](https://hub.docker.com/r/yz9910/mongo)
 
 
 ### 2. Start the System with Docker

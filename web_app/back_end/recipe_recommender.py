@@ -17,6 +17,15 @@ def recommend_recipes(user_preferences, database):
     meal_type_selections = user_preferences.get('question6', [])
     dish_type_selections = user_preferences.get('question7', [1])  # Default main dish
 
+
+    print("Diet: ", diet_selections)
+    print("Calorie: ", calorie_option)
+    print("Time: ", time_option)
+    print("Cuisine: ", cuisine_selections)
+    print("Beginner: ", is_beginner)
+    print("Meal Type: ", meal_type_selections)
+    print("Dish: ", dish_type_selections)
+
     diet_tags_to_include = []
     allergy_tags_to_exclude = []
     cuisine_tags = []
@@ -87,10 +96,18 @@ def recommend_recipes(user_preferences, database):
         meal_types = ['breakfast', 'lunch', 'dinner']
 
     print("Dish Selections: ", dish_type_selections)
-    """ for selection in dish_type_selections:
-        if selection in dish_mapping:
-            dish_types.append(dish_mapping[selection]) """
-    dish_types = dish_type_selections
+    for selection in dish_type_selections:
+        if selection == 'main_dish':
+            dish_types.append('main-dish')
+        elif selection == "side_dishes":
+            dish_types.append('side-dishes')
+        elif selection == "desserts" or selection == "appetizers":
+            dish_types.append(selection)
+        elif selection == "soups_stews":
+            dish_types.append('soups-stews')
+        elif selection == "beverage":
+            dish_types.append('beverages')
+    # dish_types = dish_type_selections
     print("Dish: ", dish_types)
     
     # If no dish types selected, default to main dish
@@ -107,7 +124,7 @@ def recommend_recipes(user_preferences, database):
         daily_min_calories, daily_max_calories = calorie_ranges[calorie_option]
     else:
         daily_min_calories = 1500
-        daily_max_calories = 4000
+        daily_max_calories = 40000
     
     # Calculate total weights for proportional distribution
     total_meal_weight = sum(meal_weights.get(meal, 1.0) for meal in meal_types)
@@ -297,7 +314,7 @@ def recommend_recipes(user_preferences, database):
                     "meal_tags": [meal],
                     "dish_tags": [dish_type]
                 }
-                
+                print(search_params)
                 # Try to find a recipe for this dish type
                 matched = list(database.find(query).limit(5))
                 matched = [r for r in matched if r['_id'] not in used_recipe_ids]
@@ -419,7 +436,7 @@ def find_with_improved_relaxation(database, params):
     
     # Create a baseline query with only meal and dish tags
     # This ensures we're starting with the right meal/dish type
-    baseline_query = {"tags": {"$in": params['meal_tags'] + params['dish_tags']}}
+    baseline_query = {"tags": params['dish_tags']}
     
     # Level 1: Drop cuisine tags
     if params['cuisine_tags']:

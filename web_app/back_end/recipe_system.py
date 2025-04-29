@@ -100,13 +100,13 @@ if __name__ == "__main__":
     
     # Example user preferences
     user_preferences = {
-        'question1': [1],  # Vegetarian
-        'question2': 4,     # Moderate calories (1600-1800)
-        'question3': 4,     # 30 minutes to 1 hour
-        'question4': [1],   # Italian cuisine
-        'question5': 2,     # Beginner cook
-        'question6': [2, 4], # Lunch and dinner
-        'question7': [1, 3, 5]  # Main dish and dessert
+        'question1': ["no_restriction"],  # Vegetarian
+        'question2': 7,     # Moderate calories (1600-1800)
+        'question3': 6,     # 30 minutes to 1 hour
+        'question4': ["any"],   # Italian cuisine
+        'question5': False,     # Beginner cook
+        'question6': ['lunch', 'dinner'], # Lunch and dinner
+        'question7': ['main_dish', 'side_dishes', 'desserts', 'appetizers', 'soups_stews', 'beverage']  # Main dish and dessert
     }
     
     # Get recommendations based on user preferences
